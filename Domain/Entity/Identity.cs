@@ -36,7 +36,7 @@ public class Identity
             createdAt: now
         );
 
-        var @event = new IdentityCreatedEvent
+        var @event = new PasswordInitializedEvent
         {
             EncryptedPassword = encryptedPassword,
             OccurredAt = now
@@ -48,12 +48,12 @@ public class Identity
 
     public static Identity FromEvents(AccountUid accountUid, List<IEvent> events)
     {
-        if (events.Count == 0 || events[0] is not IdentityCreatedEvent)
+        if (events.Count == 0 || events[0] is not PasswordInitializedEvent)
         {
-            throw new InvalidIdentityStateException("The first event must be an IdentityCreatedEvent");
+            throw new InvalidIdentityStateException("The first event must be an PasswordInitializedEvent");
         }
 
-        var createdEvent = (IdentityCreatedEvent)events[0];
+        var createdEvent = (PasswordInitializedEvent)events[0];
         var identity = new Identity(
             accountUid: accountUid,
             encryptedPassword: createdEvent.EncryptedPassword,

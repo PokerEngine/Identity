@@ -25,7 +25,7 @@ public class IdentityTest
 
         var pulledEvents = identity.PullEvents();
         Assert.Single(pulledEvents);
-        var @event = Assert.IsType<IdentityCreatedEvent>(pulledEvents[0]);
+        var @event = Assert.IsType<PasswordInitializedEvent>(pulledEvents[0]);
         Assert.Equal(new EncryptedPassword("abcdef"), @event.EncryptedPassword);
     }
 
@@ -36,7 +36,7 @@ public class IdentityTest
         var accountUid = new AccountUid(Guid.NewGuid());
         var events = new List<IEvent>
         {
-            new IdentityCreatedEvent
+            new PasswordInitializedEvent
             {
                 EncryptedPassword = new EncryptedPassword("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
@@ -66,12 +66,12 @@ public class IdentityTest
         var accountUid = new AccountUid(Guid.NewGuid());
         var events = new List<IEvent>
         {
-            new IdentityCreatedEvent
+            new PasswordInitializedEvent
             {
                 EncryptedPassword = new EncryptedPassword("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
-            new IdentityCreatedEvent
+            new PasswordInitializedEvent
             {
                 EncryptedPassword = new EncryptedPassword("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
@@ -82,7 +82,7 @@ public class IdentityTest
         var exc = Assert.Throws<InvalidIdentityStateException>(() => Identity.FromEvents(accountUid, events));
 
         // Assert
-        Assert.Equal("IdentityCreatedEvent is not supported", exc.Message);
+        Assert.Equal("PasswordInitializedEvent is not supported", exc.Message);
     }
 
     [Fact]

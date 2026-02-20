@@ -7,7 +7,7 @@ public interface IEvent
     DateTime OccurredAt { init; get; }
 }
 
-public sealed record IdentityCreatedEvent : IEvent
+public sealed record PasswordInitializedEvent : IEvent
 {
     public required DateTime OccurredAt { get; init; }
 
