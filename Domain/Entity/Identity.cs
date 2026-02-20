@@ -6,32 +6,32 @@ namespace Domain.Entity;
 
 public class Identity
 {
-    public AccountUid Uid { get; }
-    public EncryptedPassword? EncryptedPassword { get; private set; }
+    public AccountUid AccountUid { get; }
+    public EncryptedPassword EncryptedPassword { get; private set; }
     public DateTime CreatedAt { get; init; }
 
     private readonly List<IEvent> _events;
 
     private Identity(
-        AccountUid uid,
+        AccountUid accountUid,
         EncryptedPassword encryptedPassword,
         DateTime createdAt
     )
     {
-        Uid = uid;
+        AccountUid = accountUid;
         EncryptedPassword = encryptedPassword;
         CreatedAt = createdAt;
         _events = [];
     }
 
     public static Identity FromScratch(
-        AccountUid uid,
+        AccountUid accountUid,
         EncryptedPassword encryptedPassword
     )
     {
         var now = DateTime.UtcNow;
         var identity = new Identity(
-            uid: uid,
+            accountUid: accountUid,
             encryptedPassword: encryptedPassword,
             createdAt: now
         );
@@ -46,7 +46,7 @@ public class Identity
         return identity;
     }
 
-    public static Identity FromEvents(AccountUid uid, List<IEvent> events)
+    public static Identity FromEvents(AccountUid accountUid, List<IEvent> events)
     {
         if (events.Count == 0 || events[0] is not IdentityCreatedEvent)
         {
@@ -55,7 +55,7 @@ public class Identity
 
         var createdEvent = (IdentityCreatedEvent)events[0];
         var identity = new Identity(
-            uid: uid,
+            accountUid: accountUid,
             encryptedPassword: createdEvent.EncryptedPassword,
             createdAt: createdEvent.OccurredAt
         );
@@ -80,6 +80,15 @@ public class Identity
     public void ChangePassword(EncryptedPassword encryptedPassword)
     {
         EncryptedPassword = encryptedPassword;
+
+        var now = DateTime.UtcNow;
+        var @event = new PasswordChangedEvent
+        {
+            EncryptedPassword = encryptedPassword,
+            OccurredAt = now
+        };
+
+        AddEvent(@event);
     }
 
     # region Events

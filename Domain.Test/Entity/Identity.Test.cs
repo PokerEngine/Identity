@@ -11,16 +11,16 @@ public class IdentityTest
     public void FromScratch_WhenValid_ShouldConstruct()
     {
         // Arrange
-        var uid = new AccountUid(Guid.NewGuid());
+        var accountUid = new AccountUid(Guid.NewGuid());
 
         // Act
         var identity = Identity.FromScratch(
-            uid: uid,
+            accountUid: accountUid,
             encryptedPassword: new EncryptedPassword("abcdef")
         );
 
         // Assert
-        Assert.Equal(uid, identity.Uid);
+        Assert.Equal(accountUid, identity.AccountUid);
         Assert.Equal(new EncryptedPassword("abcdef"), identity.EncryptedPassword);
 
         var pulledEvents = identity.PullEvents();
@@ -33,7 +33,7 @@ public class IdentityTest
     public void FromEvents_WhenValid_ShouldConstruct()
     {
         // Arrange
-        var uid = new AccountUid(Guid.NewGuid());
+        var accountUid = new AccountUid(Guid.NewGuid());
         var events = new List<IEvent>
         {
             new IdentityCreatedEvent
@@ -49,10 +49,10 @@ public class IdentityTest
         };
 
         // Act
-        var identity = Identity.FromEvents(uid, events);
+        var identity = Identity.FromEvents(accountUid, events);
 
         // Assert
-        Assert.Equal(uid, identity.Uid);
+        Assert.Equal(accountUid, identity.AccountUid);
         Assert.Equal(new EncryptedPassword("ghijkl"), identity.EncryptedPassword);
 
         var pulledEvents = identity.PullEvents();
@@ -63,7 +63,7 @@ public class IdentityTest
     public void FromEvents_WhenCreateDuplicated_ShouldThrowException()
     {
         // Arrange
-        var uid = new AccountUid(Guid.NewGuid());
+        var accountUid = new AccountUid(Guid.NewGuid());
         var events = new List<IEvent>
         {
             new IdentityCreatedEvent
@@ -79,9 +79,32 @@ public class IdentityTest
         };
 
         // Act
-        var exc = Assert.Throws<InvalidIdentityStateException>(() => Identity.FromEvents(uid, events));
+        var exc = Assert.Throws<InvalidIdentityStateException>(() => Identity.FromEvents(accountUid, events));
 
         // Assert
         Assert.Equal("IdentityCreatedEvent is not supported", exc.Message);
+    }
+
+    [Fact]
+    public void ChangePassword_WhenValid_ShouldChangePassword()
+    {
+        // Arrange
+        var accountUid = new AccountUid(Guid.NewGuid());
+        var identity = Identity.FromScratch(
+            accountUid: accountUid,
+            encryptedPassword: new EncryptedPassword("abcdef")
+        );
+        identity.PullEvents();
+
+        // Act
+        identity.ChangePassword(new EncryptedPassword("ghijkl"));
+
+        // Assert
+        Assert.Equal(new EncryptedPassword("ghijkl"), identity.EncryptedPassword);
+
+        var pulledEvents = identity.PullEvents();
+        Assert.Single(pulledEvents);
+        var @event = Assert.IsType<PasswordChangedEvent>(pulledEvents[0]);
+        Assert.Equal(new EncryptedPassword("ghijkl"), @event.EncryptedPassword);
     }
 }
