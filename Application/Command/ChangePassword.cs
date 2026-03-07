@@ -29,7 +29,7 @@ public class ChangePasswordHandler(
 {
     public async Task<ChangePasswordResponse> HandleAsync(ChangePasswordCommand command)
     {
-        if (!await accountStorage.AccountExistsAsync(command.AccountUid))
+        if (!await accountStorage.ExistsAsync(command.AccountUid))
         {
             throw new AccountNotFoundException("The account is not found");
         }
@@ -44,9 +44,9 @@ public class ChangePasswordHandler(
             events: await repository.GetEventsAsync(command.AccountUid)
         );
 
-        await passwordEncryptor.ValidatePassword(command.OldPassword, identity.EncryptedPassword);
+        await passwordEncryptor.ValidatePasswordAsync(command.OldPassword, identity.EncryptedPassword);
 
-        var encryptedPassword = await passwordEncryptor.EncryptPassword(command.NewPassword);
+        var encryptedPassword = await passwordEncryptor.EncryptPasswordAsync(command.NewPassword);
         identity.ChangePassword(encryptedPassword);
 
         unitOfWork.Register(identity);

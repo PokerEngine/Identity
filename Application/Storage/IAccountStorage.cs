@@ -2,8 +2,8 @@ namespace Application.Storage;
 
 public interface IAccountStorage
 {
+    Task<bool> ExistsAsync(Guid accountUid);
     Task<AccountView> GetViewAsync(Guid accountUid);
-    Task<bool> AccountExistsAsync(Guid accountUid);
     Task SaveViewAsync(AccountView accountView);
 }
 

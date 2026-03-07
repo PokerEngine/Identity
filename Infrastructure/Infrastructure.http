@@ -1,0 +1,23 @@
+@Infrastructure_HostAddress = http://0.0.0.0:5260
+client.global.set("accountUid", "00000000-0000-0000-0000-000000000000");
+
+### Initialize a password
+POST {{Infrastructure_HostAddress}}/api/identity/{{accountUid}}/initialize-password
+Accept: application/json
+Content-Type: application/json
+
+{
+    "password": "P@$$w0rd"
+}
+
+### Change the password
+POST {{Infrastructure_HostAddress}}/api/identity/{{accountUid}}/change-password
+Accept: application/json
+Content-Type: application/json
+
+{
+  "oldPassword": "P@$$w0rd",
+  "newPassword": "P@$$w0rd-new"
+}
+
+###

@@ -4,6 +4,6 @@ namespace Application.Service.PasswordEncryptor;
 
 public interface IPasswordEncryptor
 {
-    Task<EncryptedPassword> EncryptPassword(Password password);
-    Task ValidatePassword(Password password, EncryptedPassword encryptedPassword);
+    Task<EncryptedPassword> EncryptPasswordAsync(Password password);
+    Task ValidatePasswordAsync(Password password, EncryptedPassword encryptedPassword);
 }

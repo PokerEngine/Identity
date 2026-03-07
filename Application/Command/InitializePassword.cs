@@ -28,7 +28,7 @@ public class InitializePasswordHandler(
 {
     public async Task<InitializePasswordResponse> HandleAsync(InitializePasswordCommand command)
     {
-        if (!await accountStorage.AccountExistsAsync(command.AccountUid))
+        if (!await accountStorage.ExistsAsync(command.AccountUid))
         {
             throw new AccountNotFoundException("The account is not found");
         }
@@ -38,7 +38,7 @@ public class InitializePasswordHandler(
             throw new PasswordInitializedException("The account password is already initialized");
         }
 
-        var encryptedPassword = await passwordEncryptor.EncryptPassword(command.Password);
+        var encryptedPassword = await passwordEncryptor.EncryptPasswordAsync(command.Password);
         var identity = Identity.FromScratch(
             accountUid: command.AccountUid,
             encryptedPassword: encryptedPassword

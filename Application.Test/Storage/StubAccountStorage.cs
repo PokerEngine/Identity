@@ -8,6 +8,11 @@ public class StubAccountStorage : IAccountStorage
 {
     private readonly ConcurrentDictionary<Guid, AccountView> _mapping = new();
 
+    public Task<bool> ExistsAsync(Guid accountUid)
+    {
+        return Task.FromResult(_mapping.ContainsKey(accountUid));
+    }
+
     public Task<AccountView> GetViewAsync(Guid accountUid)
     {
         if (!_mapping.TryGetValue(accountUid, out var view))
@@ -16,11 +21,6 @@ public class StubAccountStorage : IAccountStorage
         }
 
         return Task.FromResult(view);
-    }
-
-    public Task<bool> AccountExistsAsync(Guid accountUid)
-    {
-        return Task.FromResult(_mapping.ContainsKey(accountUid));
     }
 
     public Task SaveViewAsync(AccountView accountView)

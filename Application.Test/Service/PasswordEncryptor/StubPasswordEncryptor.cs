@@ -6,13 +6,13 @@ namespace Application.Test.Service.PasswordEncryptor;
 
 public class StubPasswordEncryptor : IPasswordEncryptor
 {
-    public Task<EncryptedPassword> EncryptPassword(Password password)
+    public Task<EncryptedPassword> EncryptPasswordAsync(Password password)
     {
         // For the stub implementation, we just reverse the string
         return Task.FromResult(new EncryptedPassword(Reverse(password)));
     }
 
-    public Task ValidatePassword(Password password, EncryptedPassword encryptedPassword)
+    public Task ValidatePasswordAsync(Password password, EncryptedPassword encryptedPassword)
     {
         if (Reverse(password) != encryptedPassword)
         {
