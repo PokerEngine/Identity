@@ -14,6 +14,7 @@ using Infrastructure.IntegrationEvent;
 using Infrastructure.Repository;
 using Infrastructure.Service.PasswordEncryptor;
 using Infrastructure.Storage;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure;
 
@@ -65,10 +66,23 @@ public static class Bootstrapper
         builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
 
         // Register integration events
+        RegisterIntegrationEventHandler<AccountRegisteredIntegrationEvent, AccountRegisteredHandler>(builder.Services);
+        builder.Services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
+
         builder.Services.Configure<RabbitMqIntegrationEventPublisherOptions>(
             builder.Configuration.GetSection(RabbitMqIntegrationEventPublisherOptions.SectionName)
         );
+        builder.Services.Configure<RabbitMqIntegrationEventConsumerOptions>(
+            builder.Configuration.GetSection(RabbitMqIntegrationEventConsumerOptions.SectionName)
+        );
         builder.Services.AddScoped<IIntegrationEventPublisher, RabbitMqIntegrationEventPublisher>();
+        builder.Services.AddHostedService(provider =>
+            new RabbitMqIntegrationEventConsumer(
+                scopeFactory: provider.GetRequiredService<IServiceScopeFactory>(),
+                options: provider.GetRequiredService<IOptions<RabbitMqIntegrationEventConsumerOptions>>(),
+                logger: provider.GetRequiredService<ILogger<RabbitMqIntegrationEventConsumer>>()
+            )
+        );
 
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
@@ -91,6 +105,14 @@ public static class Bootstrapper
     {
         services.AddScoped<THandler>();
         services.AddScoped<IEventHandler<TEvent>>(provider => provider.GetRequiredService<THandler>());
+    }
+
+    private static void RegisterIntegrationEventHandler<TIntegrationEvent, THandler>(IServiceCollection services)
+        where TIntegrationEvent : IIntegrationEvent
+        where THandler : class, IIntegrationEventHandler<TIntegrationEvent>
+    {
+        services.AddScoped<THandler>();
+        services.AddScoped<IIntegrationEventHandler<TIntegrationEvent>>(provider => provider.GetRequiredService<THandler>());
     }
 }
 
