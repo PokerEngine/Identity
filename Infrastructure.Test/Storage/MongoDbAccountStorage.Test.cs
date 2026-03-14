@@ -9,20 +9,27 @@ namespace Infrastructure.Test.Storage;
 [Trait("Category", "Integration")]
 public class MongoDbAccountStorageTest(MongoDbClientFixture fixture) : IClassFixture<MongoDbClientFixture>
 {
-    [Fact]
-    public async Task GetDetailViewAsync_WhenExists_ShouldReturn()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task GetDetailViewAsync_WhenExists_ShouldReturn(bool isEmailVerified)
     {
         // Arrange
         var storage = CreateAccountStorage();
-        var accountView = new AccountView { Uid = Guid.NewGuid(), Nickname = "Test", Email = "test@test.com" };
-        await storage.SaveViewAsync(accountView);
+        var view = new AccountView
+        {
+            AccountUid = Guid.NewGuid(),
+            Nickname = "Alice",
+            Email = "alice.alright@test.com",
+            IsEmailVerified = isEmailVerified
+        };
+        await storage.SaveViewAsync(view);
 
         // Act
-        var view = await storage.GetViewAsync(accountView.Uid);
+        var retrievedView = await storage.GetViewAsync(view.AccountUid);
 
         // Assert
-        Assert.Equal("Test", view.Nickname);
-        Assert.Equal("test@test.com", view.Email);
+        Assert.Equal(view, retrievedView);
     }
 
     [Fact]

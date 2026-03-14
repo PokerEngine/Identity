@@ -25,7 +25,7 @@ public class AccountRegisteredHandler(
     {
         var view = new AccountView
         {
-            Uid = integrationEvent.AccountUid,
+            AccountUid = integrationEvent.AccountUid,
             Nickname = integrationEvent.Nickname,
             Email = integrationEvent.Email
         };

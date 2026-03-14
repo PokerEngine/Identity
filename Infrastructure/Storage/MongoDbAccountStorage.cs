@@ -22,7 +22,7 @@ public class MongoDbAccountStorage : IAccountStorage
     public async Task<bool> ExistsAsync(Guid accountUid)
     {
         var document = await _accountViewCollection
-            .Find(e => e.Uid == accountUid)
+            .Find(e => e.AccountUid == accountUid)
             .FirstOrDefaultAsync();
         return document is not null;
     }
@@ -30,7 +30,7 @@ public class MongoDbAccountStorage : IAccountStorage
     public async Task<AccountView> GetViewAsync(Guid accountUid)
     {
         var document = await _accountViewCollection
-            .Find(x => x.Uid == accountUid)
+            .Find(x => x.AccountUid == accountUid)
             .FirstOrDefaultAsync();
 
         if (document is null)
@@ -40,7 +40,7 @@ public class MongoDbAccountStorage : IAccountStorage
 
         return new AccountView
         {
-            Uid = document.Uid,
+            AccountUid = document.AccountUid,
             Nickname = document.Nickname,
             Email = document.Email
         };
@@ -60,13 +60,13 @@ public class MongoDbAccountStorage : IAccountStorage
 
         return new AccountView
         {
-            Uid = document.Uid,
+            AccountUid = document.AccountUid,
             Nickname = document.Nickname,
             Email = document.Email
         };
     }
 
-    public async Task SaveViewAsync(AccountView accountView)
+    public async Task SaveViewAsync(AccountView view)
     {
         var options = new FindOneAndReplaceOptions<AccountViewDocument>
         {
@@ -76,12 +76,12 @@ public class MongoDbAccountStorage : IAccountStorage
 
         var document = new AccountViewDocument
         {
-            Uid = accountView.Uid,
-            Nickname = accountView.Nickname,
-            Email = accountView.Email
+            AccountUid = view.AccountUid,
+            Nickname = view.Nickname,
+            Email = view.Email
         };
 
-        await _accountViewCollection.FindOneAndReplaceAsync(x => x.Uid == accountView.Uid, document, options);
+        await _accountViewCollection.FindOneAndReplaceAsync(x => x.AccountUid == view.AccountUid, document, options);
     }
 }
 
@@ -95,7 +95,7 @@ public class MongoDbAccountStorageOptions
 public record AccountViewDocument
 {
     [BsonId]
-    public required Guid Uid { get; init; }
+    public required Guid AccountUid { get; init; }
     public required string Nickname { get; init; }
     public required string Email { get; init; }
 }

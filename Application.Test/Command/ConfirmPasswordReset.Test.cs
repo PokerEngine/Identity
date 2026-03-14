@@ -26,9 +26,9 @@ public class ConfirmPasswordResetTest
         var unitOfWork = CreateUnitOfWork();
         var accountView = new AccountView
         {
-            Uid = accountUid,
-            Nickname = "Test",
-            Email = "test@test.com"
+            AccountUid = accountUid,
+            Nickname = "Alice",
+            Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(accountView);
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
@@ -68,9 +68,9 @@ public class ConfirmPasswordResetTest
         var unitOfWork = CreateUnitOfWork();
         var accountView = new AccountView
         {
-            Uid = accountUid,
-            Nickname = "Test",
-            Email = "test@test.com"
+            AccountUid = accountUid,
+            Nickname = "Alice",
+            Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(accountView);
         await ConfirmPasswordResetPasswordAsync(passwordEncryptor, passwordResetTokenStorage, unitOfWork, accountUid);
@@ -141,9 +141,9 @@ public class ConfirmPasswordResetTest
         var unitOfWork = CreateUnitOfWork();
         var accountView = new AccountView
         {
-            Uid = accountUid,
-            Nickname = "Test",
-            Email = "test@test.com"
+            AccountUid = accountUid,
+            Nickname = "Alice",
+            Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(accountView);
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);

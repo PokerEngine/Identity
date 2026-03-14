@@ -74,7 +74,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
     private static DateTime GetNow()
     {
         // We truncate nanoseconds because they are not supported in Mongo
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         return new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerMillisecond), now.Kind);
     }
 }

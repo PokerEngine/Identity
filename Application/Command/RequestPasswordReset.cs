@@ -36,7 +36,9 @@ public class RequestPasswordResetHandler(
             return new RequestPasswordResetResponse();
         }
 
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(view.Uid);
+        await passwordResetTokenStorage.DeleteTokensAsync(view.AccountUid); // Delete all previous requests
+
+        var token = await passwordResetTokenStorage.GenerateTokenAsync(view.AccountUid);
         var message = new Message
         {
             Header = "Reset password",

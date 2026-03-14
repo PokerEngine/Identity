@@ -36,9 +36,9 @@ public class StubAccountStorage : IAccountStorage
         throw new AccountNotFoundException("The account is not found");
     }
 
-    public Task SaveViewAsync(AccountView accountView)
+    public Task SaveViewAsync(AccountView view)
     {
-        _mapping.AddOrUpdate(accountView.Uid, accountView, (_, _) => accountView);
+        _mapping.AddOrUpdate(view.AccountUid, view, (_, _) => view);
         return Task.CompletedTask;
     }
 }
