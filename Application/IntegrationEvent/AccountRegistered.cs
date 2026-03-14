@@ -23,12 +23,12 @@ public class AccountRegisteredHandler(
 {
     public async Task HandleAsync(AccountRegisteredIntegrationEvent integrationEvent)
     {
-        var accountView = new AccountView
+        var view = new AccountView
         {
             Uid = integrationEvent.AccountUid,
             Nickname = integrationEvent.Nickname,
             Email = integrationEvent.Email
         };
-        await accountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(view);
     }
 }

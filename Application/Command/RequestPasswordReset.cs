@@ -23,7 +23,12 @@ public class RequestPasswordResetHandler(
 
         try
         {
-            view = await accountStorage.GetViewByEmailAsync(command.Email); // TODO: check whether the email is verified
+            view = await accountStorage.GetViewByEmailAsync(command.Email);
+
+            if (!view.IsEmailVerified)
+            {
+                throw new AccountNotFoundException("Email not verified");
+            }
         }
         catch (AccountNotFoundException)
         {
@@ -35,7 +40,7 @@ public class RequestPasswordResetHandler(
         var message = new Message
         {
             Header = "Reset password",
-            Content = $"[Reset password](/identity/reset-password?token={token})" // TODO: implement URL template
+            Content = $"[Reset password](/identity/password-reset?token={token})" // TODO: implement URL template
         };
         var recipient = new Recipient
         {

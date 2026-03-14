@@ -13,4 +13,5 @@ public record AccountView
     public required Guid Uid { get; init; }
     public required string Nickname { get; init; }
     public required string Email { get; init; }
+    public bool IsEmailVerified { get; set; } = false;
 }

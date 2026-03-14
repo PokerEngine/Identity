@@ -71,6 +71,7 @@ public static class Bootstrapper
 
         // Register integration events
         RegisterIntegrationEventHandler<AccountRegisteredIntegrationEvent, AccountRegisteredHandler>(builder.Services);
+        RegisterIntegrationEventHandler<EmailVerifiedIntegrationEvent, EmailVerifiedHandler>(builder.Services);
         builder.Services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
 
         builder.Services.Configure<RabbitMqIntegrationEventPublisherOptions>(

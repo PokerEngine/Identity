@@ -8,7 +8,41 @@ namespace Application.Test.Command;
 public class RequestPasswordResetTest
 {
     [Fact]
-    public async Task HandleAsync_Valid_ShouldSendEmail()
+    public async Task HandleAsync_EmailVerified_ShouldSendEmail()
+    {
+        // Arrange
+        var accountUid = Guid.NewGuid();
+        var messageSender = new StubMessageSender();
+        var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
+        var accountStorage = new StubAccountStorage();
+        var accountView = new AccountView
+        {
+            Uid = accountUid,
+            Nickname = "Test",
+            Email = "test@test.com",
+            IsEmailVerified = true
+        };
+        await accountStorage.SaveViewAsync(accountView);
+
+        var command = new RequestPasswordResetCommand
+        {
+            Email = "test@test.com"
+        };
+        var handler = new RequestPasswordResetHandler(
+            accountStorage: accountStorage,
+            passwordResetTokenStorage: passwordResetTokenStorage,
+            messageSender: messageSender
+        );
+
+        // Act
+        await handler.HandleAsync(command);
+
+        // Assert
+        Assert.Single(messageSender.GetSentMessages());
+    }
+
+    [Fact]
+    public async Task HandleAsync_EmailNotVerified_ShouldDoNothing()
     {
         // Arrange
         var accountUid = Guid.NewGuid();
@@ -37,7 +71,7 @@ public class RequestPasswordResetTest
         await handler.HandleAsync(command);
 
         // Assert
-        Assert.Single(messageSender.GetSentMessages());
+        Assert.Empty(messageSender.GetSentMessages());
     }
 
     [Fact]
