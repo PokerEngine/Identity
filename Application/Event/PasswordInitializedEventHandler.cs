@@ -1,12 +1,28 @@
+using Application.Service.MessageSender;
+using Application.Storage;
 using Domain.Event;
 
 namespace Application.Event;
 
-public class PasswordInitializedEventHandler : IEventHandler<PasswordInitializedEvent>
+public class PasswordInitializedEventHandler(
+    IAccountStorage accountStorage,
+    IMessageSender messageSender
+) : IEventHandler<PasswordInitializedEvent>
 {
-    public Task HandleAsync(PasswordInitializedEvent @event, EventContext context)
+    public async Task HandleAsync(PasswordInitializedEvent @event, EventContext context)
     {
-        // TODO: send a notification about the password initialization
-        return Task.CompletedTask;
+        var view = await accountStorage.GetViewAsync(context.AccountUid);
+
+        var message = new Message
+        {
+            Header = "Password initialized",
+            Content = "Your password has been initialized"
+        };
+        var recipient = new Recipient
+        {
+            Email = view.Email
+        };
+
+        await messageSender.SendAsync(message, recipient);
     }
 }

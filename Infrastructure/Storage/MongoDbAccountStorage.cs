@@ -42,7 +42,8 @@ public class MongoDbAccountStorage : IAccountStorage
         {
             AccountUid = document.AccountUid,
             Nickname = document.Nickname,
-            Email = document.Email
+            Email = document.Email,
+            IsEmailVerified = document.IsEmailVerified
         };
     }
 
@@ -62,7 +63,8 @@ public class MongoDbAccountStorage : IAccountStorage
         {
             AccountUid = document.AccountUid,
             Nickname = document.Nickname,
-            Email = document.Email
+            Email = document.Email,
+            IsEmailVerified = document.IsEmailVerified
         };
     }
 
@@ -78,7 +80,8 @@ public class MongoDbAccountStorage : IAccountStorage
         {
             AccountUid = view.AccountUid,
             Nickname = view.Nickname,
-            Email = view.Email
+            Email = view.Email,
+            IsEmailVerified = view.IsEmailVerified
         };
 
         await _accountViewCollection.FindOneAndReplaceAsync(x => x.AccountUid == view.AccountUid, document, options);
@@ -98,4 +101,5 @@ public record AccountViewDocument
     public required Guid AccountUid { get; init; }
     public required string Nickname { get; init; }
     public required string Email { get; init; }
+    public required bool IsEmailVerified { get; init; }
 }

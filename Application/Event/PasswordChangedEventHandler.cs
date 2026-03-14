@@ -1,12 +1,28 @@
+using Application.Service.MessageSender;
+using Application.Storage;
 using Domain.Event;
 
 namespace Application.Event;
 
-public class PasswordChangedEventHandler : IEventHandler<PasswordChangedEvent>
+public class PasswordChangedEventHandler(
+    IAccountStorage accountStorage,
+    IMessageSender messageSender
+) : IEventHandler<PasswordChangedEvent>
 {
-    public Task HandleAsync(PasswordChangedEvent @event, EventContext context)
+    public async Task HandleAsync(PasswordChangedEvent @event, EventContext context)
     {
-        // TODO: send a notification about the password change
-        return Task.CompletedTask;
+        var view = await accountStorage.GetViewAsync(context.AccountUid);
+
+        var message = new Message
+        {
+            Header = "Password changed",
+            Content = "Your password has been changed"
+        };
+        var recipient = new Recipient
+        {
+            Email = view.Email
+        };
+
+        await messageSender.SendAsync(message, recipient);
     }
 }
