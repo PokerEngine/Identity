@@ -12,7 +12,7 @@ public class MongoDbAccountStorage : IAccountStorage
     private const string AccountViewCollectionName = "views_account";
     private readonly IMongoCollection<AccountViewDocument> _accountViewCollection;
 
-    public MongoDbAccountStorage(MongoDbClient client, IOptions<MongoDbStorageOptions> options)
+    public MongoDbAccountStorage(MongoDbClient client, IOptions<MongoDbAccountStorageOptions> options)
     {
         var db = client.Client.GetDatabase(options.Value.Database);
 
@@ -85,9 +85,9 @@ public class MongoDbAccountStorage : IAccountStorage
     }
 }
 
-public class MongoDbStorageOptions
+public class MongoDbAccountStorageOptions
 {
-    public const string SectionName = "MongoDbStorage";
+    public const string SectionName = "MongoDbAccountStorage";
 
     public required string Database { get; init; }
 }

@@ -46,9 +46,9 @@ public class MongoDbAccountStorageTest(MongoDbClientFixture fixture) : IClassFix
         return new MongoDbAccountStorage(client, options);
     }
 
-    private IOptions<MongoDbStorageOptions> CreateOptions()
+    private IOptions<MongoDbAccountStorageOptions> CreateOptions()
     {
-        var options = new MongoDbStorageOptions
+        var options = new MongoDbAccountStorageOptions
         {
             Database = $"test_storage_{Guid.NewGuid()}"
         };

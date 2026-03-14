@@ -11,8 +11,7 @@ public sealed class RabbitMqClientFixture : IAsyncLifetime
     private const int Port = 5672;
 
     private RabbitMqContainer Container { get; } =
-        new RabbitMqBuilder()
-            .WithImage("rabbitmq:4-management")
+        new RabbitMqBuilder("rabbitmq:4-management")
             .WithUsername(Username)
             .WithPassword(Password)
             .Build();

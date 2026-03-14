@@ -43,11 +43,15 @@ public static class Bootstrapper
         );
         builder.Services.AddSingleton<IRepository, MongoDbRepository>();
 
-        // Register storage
-        builder.Services.Configure<MongoDbStorageOptions>(
-            builder.Configuration.GetSection(MongoDbStorageOptions.SectionName)
+        // Register storages
+        builder.Services.Configure<MongoDbAccountStorageOptions>(
+            builder.Configuration.GetSection(MongoDbAccountStorageOptions.SectionName)
         );
         builder.Services.AddSingleton<IAccountStorage, MongoDbAccountStorage>();
+        builder.Services.Configure<MongoDbPasswordResetTokenStorageOptions>(
+            builder.Configuration.GetSection(MongoDbPasswordResetTokenStorageOptions.SectionName)
+        );
+        builder.Services.AddSingleton<IPasswordResetTokenStorage, MongoDbPasswordResetTokenStorage>();
 
         // Register unit of work
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -56,8 +60,8 @@ public static class Bootstrapper
         builder.Services.AddSingleton<IPasswordEncryptor, Pbkdf2PasswordEncryptor>();
 
         // Register commands
-        RegisterCommandHandler<InitializePasswordCommand, InitializePasswordHandler, InitializePasswordResponse>(builder.Services);
-        RegisterCommandHandler<ChangePasswordCommand, ChangePasswordHandler, ChangePasswordResponse>(builder.Services);
+        RegisterCommandHandler<RequestPasswordResetCommand, RequestPasswordResetHandler, RequestPasswordResetResponse>(builder.Services);
+        RegisterCommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetHandler, ConfirmPasswordResetResponse>(builder.Services);
         builder.Services.AddScoped<ICommandDispatcher, CommandDispatcher>();
 
         // Register domain events

@@ -11,8 +11,7 @@ public sealed class MongoDbClientFixture : IAsyncLifetime
     private const int Port = 27017;
 
     private MongoDbContainer Container { get; } =
-        new MongoDbBuilder()
-            .WithImage("mongo:8")
+        new MongoDbBuilder("mongo:8")
             .WithUsername(Username)
             .WithPassword(Password)
             .WithCleanUp(true)
