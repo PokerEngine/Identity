@@ -19,16 +19,17 @@ public class InitializePasswordTest
     public async Task HandleAsync_Valid_ShouldInitializePassword()
     {
         // Arrange
-        var passwordEncryptor = new StubPasswordEncryptor();
-        var unitOfWork = CreateUnitOfWork();
         var accountUid = Guid.NewGuid();
+        var passwordEncryptor = new StubPasswordEncryptor();
+        var accountStorage = new StubAccountStorage();
+        var unitOfWork = CreateUnitOfWork();
         var accountView = new AccountView
         {
             Uid = accountUid,
             Nickname = "Test",
             Email = "test@test.com"
         };
-        await unitOfWork.AccountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(accountView);
 
         var command = new InitializePasswordCommand
         {
@@ -37,7 +38,7 @@ public class InitializePasswordTest
         };
         var handler = new InitializePasswordHandler(
             repository: unitOfWork.Repository,
-            accountStorage: unitOfWork.AccountStorage,
+            accountStorage: accountStorage,
             passwordEncryptor: passwordEncryptor,
             unitOfWork: unitOfWork
         );
@@ -59,10 +60,11 @@ public class InitializePasswordTest
     public async Task HandleAsync_AlreadyInitialized_ShouldThrowException()
     {
         // Arrange
-        var passwordEncryptor = new StubPasswordEncryptor();
-        var unitOfWork = CreateUnitOfWork();
         var accountUid = Guid.NewGuid();
-        await InitializePasswordAsync(passwordEncryptor, unitOfWork, accountUid, "P@$$w0rd");
+        var passwordEncryptor = new StubPasswordEncryptor();
+        var accountStorage = new StubAccountStorage();
+        var unitOfWork = CreateUnitOfWork();
+        await InitializePasswordAsync(passwordEncryptor, accountStorage, unitOfWork, accountUid, "P@$$w0rd");
 
         var command = new InitializePasswordCommand
         {
@@ -71,7 +73,7 @@ public class InitializePasswordTest
         };
         var handler = new InitializePasswordHandler(
             repository: unitOfWork.Repository,
-            accountStorage: unitOfWork.AccountStorage,
+            accountStorage: accountStorage,
             passwordEncryptor: passwordEncryptor,
             unitOfWork: unitOfWork
         );
@@ -91,6 +93,7 @@ public class InitializePasswordTest
     {
         // Arrange
         var passwordEncryptor = new StubPasswordEncryptor();
+        var accountStorage = new StubAccountStorage();
         var unitOfWork = CreateUnitOfWork();
 
         var command = new InitializePasswordCommand
@@ -100,7 +103,7 @@ public class InitializePasswordTest
         };
         var handler = new InitializePasswordHandler(
             repository: unitOfWork.Repository,
-            accountStorage: unitOfWork.AccountStorage,
+            accountStorage: accountStorage,
             passwordEncryptor: passwordEncryptor,
             unitOfWork: unitOfWork
         );
@@ -117,6 +120,7 @@ public class InitializePasswordTest
 
     private async Task InitializePasswordAsync(
         StubPasswordEncryptor passwordEncryptor,
+        StubAccountStorage accountStorage,
         StubUnitOfWork unitOfWork,
         Guid accountUid,
         string password
@@ -128,11 +132,11 @@ public class InitializePasswordTest
             Nickname = "Test",
             Email = "test@test.com"
         };
-        await unitOfWork.AccountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(accountView);
 
         var handler = new InitializePasswordHandler(
             repository: unitOfWork.Repository,
-            accountStorage: unitOfWork.AccountStorage,
+            accountStorage: accountStorage,
             passwordEncryptor: passwordEncryptor,
             unitOfWork: unitOfWork
         );
@@ -148,8 +152,7 @@ public class InitializePasswordTest
     private StubUnitOfWork CreateUnitOfWork()
     {
         var repository = new StubRepository();
-        var accountStorage = new StubAccountStorage();
         var eventDispatcher = new StubEventDispatcher();
-        return new StubUnitOfWork(repository, accountStorage, eventDispatcher);
+        return new StubUnitOfWork(repository, eventDispatcher);
     }
 }

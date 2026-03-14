@@ -49,10 +49,10 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         await repository.AddEventsAsync(accountUid, [@event]);
 
         // Act & Assert
-        var exc = await Assert.ThrowsAsync<AccountNotFoundException>(
+        var exc = await Assert.ThrowsAsync<IdentityNotFoundException>(
             async () => await repository.GetEventsAsync(new AccountUid(Guid.NewGuid()))
         );
-        Assert.Equal("The account is not found", exc.Message);
+        Assert.Equal("The identity is not found", exc.Message);
     }
 
     private IRepository CreateRepository()

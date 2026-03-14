@@ -46,6 +46,26 @@ public class MongoDbAccountStorage : IAccountStorage
         };
     }
 
+
+    public async Task<AccountView> GetViewByEmailAsync(string email)
+    {
+        var document = await _accountViewCollection
+            .Find(x => x.Email == email)
+            .FirstOrDefaultAsync();
+
+        if (document is null)
+        {
+            throw new AccountNotFoundException("The account is not found");
+        }
+
+        return new AccountView
+        {
+            Uid = document.Uid,
+            Nickname = document.Nickname,
+            Email = document.Email
+        };
+    }
+
     public async Task SaveViewAsync(AccountView accountView)
     {
         var options = new FindOneAndReplaceOptions<AccountViewDocument>

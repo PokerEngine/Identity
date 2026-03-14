@@ -23,6 +23,19 @@ public class StubAccountStorage : IAccountStorage
         return Task.FromResult(view);
     }
 
+    public Task<AccountView> GetViewByEmailAsync(string email)
+    {
+        foreach (var view in _mapping.Values)
+        {
+            if (view.Email == email)
+            {
+                return Task.FromResult(view);
+            }
+        }
+
+        throw new AccountNotFoundException("The account is not found");
+    }
+
     public Task SaveViewAsync(AccountView accountView)
     {
         _mapping.AddOrUpdate(accountView.Uid, accountView, (_, _) => accountView);

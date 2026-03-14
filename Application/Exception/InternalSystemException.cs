@@ -8,3 +8,6 @@ public class InternalSystemMisconfiguredException(string message, System.Excepti
 
 public class WrongPasswordException(string message, System.Exception? innerException = null)
     : InternalSystemException(message, innerException);
+
+public class WrongPasswordResetTokenException(string message, System.Exception? innerException = null)
+    : InternalSystemException(message, innerException);

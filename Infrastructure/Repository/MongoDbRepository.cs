@@ -48,7 +48,7 @@ public class MongoDbRepository : IRepository
 
         if (events.Count == 0)
         {
-            throw new AccountNotFoundException("The account is not found");
+            throw new IdentityNotFoundException("The identity is not found");
         }
 
         return events;
