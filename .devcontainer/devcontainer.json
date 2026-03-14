@@ -1,0 +1,20 @@
+{
+    "name": "Identity",
+    "dockerComposeFile": "../docker-compose.yaml",
+    "service": "identity",
+    "workspaceFolder": "/usr/local/identity",
+    "postCreateCommand": "git config --global --add safe.directory /usr/local/identity",
+    "forwardPorts": [5260, 7053, 27017, 5672],
+    "runArgs": [
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock"
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "customizations": {
+        "jetbrains": {
+            "projector": true
+        }
+    }
+}
