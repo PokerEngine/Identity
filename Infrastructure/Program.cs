@@ -2,7 +2,7 @@ using Application.Command;
 using Application.Event;
 using Application.IntegrationEvent;
 using Application.Repository;
-using Application.Service.PasswordEncryptor;
+using Application.Service.PasswordHasher;
 using Application.Storage;
 using Application.UnitOfWork;
 using Domain.Event;
@@ -12,7 +12,7 @@ using Infrastructure.Command;
 using Infrastructure.Event;
 using Infrastructure.IntegrationEvent;
 using Infrastructure.Repository;
-using Infrastructure.Service.PasswordEncryptor;
+using Infrastructure.Service.PasswordHasher;
 using Infrastructure.Storage;
 using Microsoft.Extensions.Options;
 
@@ -56,8 +56,8 @@ public static class Bootstrapper
         // Register unit of work
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Register password encryptor
-        builder.Services.AddSingleton<IPasswordEncryptor, Pbkdf2PasswordEncryptor>();
+        // Register password hasher
+        builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
 
         // Register commands
         RegisterCommandHandler<RequestPasswordResetCommand, RequestPasswordResetHandler, RequestPasswordResetResponse>(builder.Services);

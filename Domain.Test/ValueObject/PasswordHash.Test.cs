@@ -2,25 +2,25 @@ using Domain.ValueObject;
 
 namespace Domain.Test.ValueObject;
 
-public class EncryptedPasswordTest
+public class PasswordHashTest
 {
     [Fact]
     public void Constructor_WhenValid_ShouldConstruct()
     {
         // Arrange & Act
-        var encryptedPassword = new EncryptedPassword("abcdef");
+        var passwordHash = new PasswordHash("abcdef");
 
         // Assert
-        Assert.Equal("abcdef", (string)encryptedPassword);
+        Assert.Equal("abcdef", (string)passwordHash);
     }
 
     [Fact]
     public void ToString_WhenValid_ShouldReturnValidString()
     {
         // Arrange
-        var encryptedPassword = new EncryptedPassword("abcdef");
+        var passwordHash = new PasswordHash("abcdef");
 
         // Act & Assert
-        Assert.Equal("********", $"{encryptedPassword}");
+        Assert.Equal("********", $"{passwordHash}");
     }
 }

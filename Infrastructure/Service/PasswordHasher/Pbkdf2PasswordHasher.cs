@@ -1,17 +1,17 @@
 using Application.Exception;
-using Application.Service.PasswordEncryptor;
+using Application.Service.PasswordHasher;
 using Domain.ValueObject;
 using System.Security.Cryptography;
 
-namespace Infrastructure.Service.PasswordEncryptor;
+namespace Infrastructure.Service.PasswordHasher;
 
-public class Pbkdf2PasswordEncryptor : IPasswordEncryptor
+public class Pbkdf2PasswordHasher : IPasswordHasher
 {
     private const int SaltSize = 16; // 128-bit
     private const int HashSize = 32; // 256-bit
     private const int Iterations = 100_000;
 
-    public Task<EncryptedPassword> EncryptPasswordAsync(Password password)
+    public Task<PasswordHash> HashAsync(Password password)
     {
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
@@ -30,14 +30,14 @@ public class Pbkdf2PasswordEncryptor : IPasswordEncryptor
 
         var encoded = Convert.ToBase64String(combined);
 
-        return Task.FromResult(new EncryptedPassword(encoded));
+        return Task.FromResult(new PasswordHash(encoded));
     }
 
-    public Task ValidatePasswordAsync(
+    public Task VerifyAsync(
         Password password,
-        EncryptedPassword encryptedPassword)
+        PasswordHash passwordHash)
     {
-        var combined = Convert.FromBase64String(encryptedPassword);
+        var combined = Convert.FromBase64String(passwordHash);
 
         var salt = new byte[SaltSize];
         var storedHash = new byte[HashSize];

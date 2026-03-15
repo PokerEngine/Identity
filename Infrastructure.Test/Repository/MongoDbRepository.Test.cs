@@ -20,7 +20,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         var accountUid = new AccountUid(Guid.NewGuid());
         var @event = new TestEvent
         {
-            EncryptedPassword = new EncryptedPassword("abcdef"),
+            PasswordHash = new PasswordHash("abcdef"),
             OccurredAt = GetNow()
         };
         await repository.AddEventsAsync(accountUid, [@event]);
@@ -43,7 +43,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         var accountUid = new AccountUid(Guid.NewGuid());
         var @event = new TestEvent
         {
-            EncryptedPassword = new EncryptedPassword("abcdef"),
+            PasswordHash = new PasswordHash("abcdef"),
             OccurredAt = GetNow()
         };
         await repository.AddEventsAsync(accountUid, [@event]);
@@ -81,6 +81,6 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
 
 internal sealed record TestEvent : IEvent
 {
-    public required EncryptedPassword EncryptedPassword { get; init; }
+    public required PasswordHash PasswordHash { get; init; }
     public required DateTime OccurredAt { get; init; }
 }

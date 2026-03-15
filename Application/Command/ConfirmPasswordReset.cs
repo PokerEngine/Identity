@@ -1,6 +1,6 @@
 using Application.Exception;
 using Application.Repository;
-using Application.Service.PasswordEncryptor;
+using Application.Service.PasswordHasher;
 using Application.Storage;
 using Application.UnitOfWork;
 using Domain.Entity;
@@ -18,14 +18,14 @@ public record ConfirmPasswordResetResponse : ICommandResponse;
 public class ConfirmPasswordResetHandler(
     IRepository repository,
     IPasswordResetTokenStorage passwordResetTokenStorage,
-    IPasswordEncryptor passwordEncryptor,
+    IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork
 ) : ICommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetResponse>
 {
     public async Task<ConfirmPasswordResetResponse> HandleAsync(ConfirmPasswordResetCommand command)
     {
         var accountUid = await passwordResetTokenStorage.VerifyTokenAsync(command.Token);
-        var encryptedPassword = await passwordEncryptor.EncryptPasswordAsync(command.Password);
+        var passwordHash = await passwordHasher.HashAsync(command.Password);
 
         Identity identity;
 
@@ -35,13 +35,13 @@ public class ConfirmPasswordResetHandler(
                 accountUid: accountUid,
                 events: await repository.GetEventsAsync(accountUid)
             );
-            identity.ChangePassword(encryptedPassword);
+            identity.ChangePassword(passwordHash);
         }
         catch (IdentityNotFoundException)
         {
             identity = Identity.FromScratch(
                 accountUid: accountUid,
-                encryptedPassword: encryptedPassword
+                passwordHash: passwordHash
             );
         }
 

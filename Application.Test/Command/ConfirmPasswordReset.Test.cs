@@ -3,7 +3,7 @@ using Application.Exception;
 using Application.Storage;
 using Application.Test.Event;
 using Application.Test.Repository;
-using Application.Test.Service.PasswordEncryptor;
+using Application.Test.Service.PasswordHasher;
 using Application.Test.Storage;
 using Application.Test.UnitOfWork;
 using Domain.Entity;
@@ -20,7 +20,7 @@ public class ConfirmPasswordResetTest
     {
         // Arrange
         var accountUid = Guid.NewGuid();
-        var passwordEncryptor = new StubPasswordEncryptor();
+        var passwordHasher = new StubPasswordHasher();
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var unitOfWork = CreateUnitOfWork();
@@ -41,7 +41,7 @@ public class ConfirmPasswordResetTest
         var handler = new ConfirmPasswordResetHandler(
             repository: unitOfWork.Repository,
             passwordResetTokenStorage: passwordResetTokenStorage,
-            passwordEncryptor: passwordEncryptor,
+            passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
         );
 
@@ -50,7 +50,7 @@ public class ConfirmPasswordResetTest
 
         // Assert
         var identity = Identity.FromEvents(accountUid, await unitOfWork.Repository.GetEventsAsync(accountUid));
-        Assert.Equal(new EncryptedPassword("dr0w$$@P"), identity.EncryptedPassword);
+        Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
         var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
         Assert.Single(events);
@@ -62,7 +62,7 @@ public class ConfirmPasswordResetTest
     {
         // Arrange
         var accountUid = Guid.NewGuid();
-        var passwordEncryptor = new StubPasswordEncryptor();
+        var passwordHasher = new StubPasswordHasher();
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var unitOfWork = CreateUnitOfWork();
@@ -73,7 +73,7 @@ public class ConfirmPasswordResetTest
             Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(accountView);
-        await ConfirmPasswordResetPasswordAsync(passwordEncryptor, passwordResetTokenStorage, unitOfWork, accountUid);
+        await ConfirmPasswordResetPasswordAsync(passwordHasher, passwordResetTokenStorage, unitOfWork, accountUid);
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
@@ -84,7 +84,7 @@ public class ConfirmPasswordResetTest
         var handler = new ConfirmPasswordResetHandler(
             repository: unitOfWork.Repository,
             passwordResetTokenStorage: passwordResetTokenStorage,
-            passwordEncryptor: passwordEncryptor,
+            passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
         );
 
@@ -93,7 +93,7 @@ public class ConfirmPasswordResetTest
 
         // Assert
         var identity = Identity.FromEvents(accountUid, await unitOfWork.Repository.GetEventsAsync(accountUid));
-        Assert.Equal(new EncryptedPassword("dr0w$$@P"), identity.EncryptedPassword);
+        Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
         var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
         Assert.Single(events);
@@ -104,7 +104,7 @@ public class ConfirmPasswordResetTest
     public async Task HandleAsync_TokenNotFound_ShouldThrowException()
     {
         // Arrange
-        var passwordEncryptor = new StubPasswordEncryptor();
+        var passwordHasher = new StubPasswordHasher();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var unitOfWork = CreateUnitOfWork();
 
@@ -116,7 +116,7 @@ public class ConfirmPasswordResetTest
         var handler = new ConfirmPasswordResetHandler(
             repository: unitOfWork.Repository,
             passwordResetTokenStorage: passwordResetTokenStorage,
-            passwordEncryptor: passwordEncryptor,
+            passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
         );
 
@@ -135,7 +135,7 @@ public class ConfirmPasswordResetTest
     {
         // Arrange
         var accountUid = Guid.NewGuid();
-        var passwordEncryptor = new StubPasswordEncryptor();
+        var passwordHasher = new StubPasswordHasher();
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 0, 0));
         var unitOfWork = CreateUnitOfWork();
@@ -156,7 +156,7 @@ public class ConfirmPasswordResetTest
         var handler = new ConfirmPasswordResetHandler(
             repository: unitOfWork.Repository,
             passwordResetTokenStorage: passwordResetTokenStorage,
-            passwordEncryptor: passwordEncryptor,
+            passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
         );
 
@@ -171,7 +171,7 @@ public class ConfirmPasswordResetTest
     }
 
     private async Task ConfirmPasswordResetPasswordAsync(
-        StubPasswordEncryptor passwordEncryptor,
+        StubPasswordHasher passwordHasher,
         StubPasswordResetTokenStorage passwordResetTokenStorage,
         StubUnitOfWork unitOfWork,
         Guid accountUid
@@ -187,7 +187,7 @@ public class ConfirmPasswordResetTest
         var handler = new ConfirmPasswordResetHandler(
             repository: unitOfWork.Repository,
             passwordResetTokenStorage: passwordResetTokenStorage,
-            passwordEncryptor: passwordEncryptor,
+            passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
         );
         await handler.HandleAsync(command);

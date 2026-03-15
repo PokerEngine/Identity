@@ -16,17 +16,17 @@ public class IdentityTest
         // Act
         var identity = Identity.FromScratch(
             accountUid: accountUid,
-            encryptedPassword: new EncryptedPassword("abcdef")
+            passwordHash: new PasswordHash("abcdef")
         );
 
         // Assert
         Assert.Equal(accountUid, identity.AccountUid);
-        Assert.Equal(new EncryptedPassword("abcdef"), identity.EncryptedPassword);
+        Assert.Equal(new PasswordHash("abcdef"), identity.PasswordHash);
 
         var pulledEvents = identity.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<PasswordInitializedEvent>(pulledEvents[0]);
-        Assert.Equal(new EncryptedPassword("abcdef"), @event.EncryptedPassword);
+        Assert.Equal(new PasswordHash("abcdef"), @event.PasswordHash);
     }
 
     [Fact]
@@ -38,12 +38,12 @@ public class IdentityTest
         {
             new PasswordInitializedEvent
             {
-                EncryptedPassword = new EncryptedPassword("abcdef"),
+                PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new PasswordChangedEvent
             {
-                EncryptedPassword = new EncryptedPassword("ghijkl"),
+                PasswordHash = new PasswordHash("ghijkl"),
                 OccurredAt = new DateTime(2025, 1, 1)
             }
         };
@@ -53,7 +53,7 @@ public class IdentityTest
 
         // Assert
         Assert.Equal(accountUid, identity.AccountUid);
-        Assert.Equal(new EncryptedPassword("ghijkl"), identity.EncryptedPassword);
+        Assert.Equal(new PasswordHash("ghijkl"), identity.PasswordHash);
 
         var pulledEvents = identity.PullEvents();
         Assert.Empty(pulledEvents);
@@ -68,12 +68,12 @@ public class IdentityTest
         {
             new PasswordInitializedEvent
             {
-                EncryptedPassword = new EncryptedPassword("abcdef"),
+                PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new PasswordInitializedEvent
             {
-                EncryptedPassword = new EncryptedPassword("abcdef"),
+                PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
         };
@@ -92,19 +92,19 @@ public class IdentityTest
         var accountUid = new AccountUid(Guid.NewGuid());
         var identity = Identity.FromScratch(
             accountUid: accountUid,
-            encryptedPassword: new EncryptedPassword("abcdef")
+            passwordHash: new PasswordHash("abcdef")
         );
         identity.PullEvents();
 
         // Act
-        identity.ChangePassword(new EncryptedPassword("ghijkl"));
+        identity.ChangePassword(new PasswordHash("ghijkl"));
 
         // Assert
-        Assert.Equal(new EncryptedPassword("ghijkl"), identity.EncryptedPassword);
+        Assert.Equal(new PasswordHash("ghijkl"), identity.PasswordHash);
 
         var pulledEvents = identity.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<PasswordChangedEvent>(pulledEvents[0]);
-        Assert.Equal(new EncryptedPassword("ghijkl"), @event.EncryptedPassword);
+        Assert.Equal(new PasswordHash("ghijkl"), @event.PasswordHash);
     }
 }

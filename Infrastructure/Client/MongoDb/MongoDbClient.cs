@@ -35,7 +35,7 @@ internal static class MongoDbSerializerConfig
     {
         BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         BsonSerializer.TryRegisterSerializer(new AccountUidSerializer());
-        BsonSerializer.TryRegisterSerializer(new EncryptedPasswordSerializer());
+        BsonSerializer.TryRegisterSerializer(new PasswordHashSerializer());
     }
 }
 
@@ -48,11 +48,11 @@ internal sealed class AccountUidSerializer : SerializerBase<AccountUid>
         => context.Reader.ReadGuid();
 }
 
-internal sealed class EncryptedPasswordSerializer : SerializerBase<EncryptedPassword>
+internal sealed class PasswordHashSerializer : SerializerBase<PasswordHash>
 {
-    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, EncryptedPassword value)
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, PasswordHash value)
         => context.Writer.WriteString(value);
 
-    public override EncryptedPassword Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+    public override PasswordHash Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         => context.Reader.ReadString();
 }

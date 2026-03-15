@@ -11,12 +11,12 @@ public sealed record PasswordInitializedEvent : IEvent
 {
     public required DateTime OccurredAt { get; init; }
 
-    public required EncryptedPassword EncryptedPassword { get; init; }
+    public required PasswordHash PasswordHash { get; init; }
 }
 
 public sealed record PasswordChangedEvent : IEvent
 {
     public required DateTime OccurredAt { get; init; }
 
-    public required EncryptedPassword EncryptedPassword { get; init; }
+    public required PasswordHash PasswordHash { get; init; }
 }

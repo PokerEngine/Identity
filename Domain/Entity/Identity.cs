@@ -7,38 +7,38 @@ namespace Domain.Entity;
 public class Identity
 {
     public AccountUid AccountUid { get; }
-    public EncryptedPassword EncryptedPassword { get; private set; }
+    public PasswordHash PasswordHash { get; private set; }
     public DateTime CreatedAt { get; init; }
 
     private readonly List<IEvent> _events;
 
     private Identity(
         AccountUid accountUid,
-        EncryptedPassword encryptedPassword,
+        PasswordHash passwordHash,
         DateTime createdAt
     )
     {
         AccountUid = accountUid;
-        EncryptedPassword = encryptedPassword;
+        PasswordHash = passwordHash;
         CreatedAt = createdAt;
         _events = [];
     }
 
     public static Identity FromScratch(
         AccountUid accountUid,
-        EncryptedPassword encryptedPassword
+        PasswordHash passwordHash
     )
     {
         var now = DateTime.UtcNow;
         var identity = new Identity(
             accountUid: accountUid,
-            encryptedPassword: encryptedPassword,
+            passwordHash: passwordHash,
             createdAt: now
         );
 
         var @event = new PasswordInitializedEvent
         {
-            EncryptedPassword = encryptedPassword,
+            PasswordHash = passwordHash,
             OccurredAt = now
         };
         identity.AddEvent(@event);
@@ -56,7 +56,7 @@ public class Identity
         var createdEvent = (PasswordInitializedEvent)events[0];
         var identity = new Identity(
             accountUid: accountUid,
-            encryptedPassword: createdEvent.EncryptedPassword,
+            passwordHash: createdEvent.PasswordHash,
             createdAt: createdEvent.OccurredAt
         );
 
@@ -65,7 +65,7 @@ public class Identity
             switch (@event)
             {
                 case PasswordChangedEvent e:
-                    identity.ChangePassword(e.EncryptedPassword);
+                    identity.ChangePassword(e.PasswordHash);
                     break;
                 default:
                     throw new InvalidIdentityStateException($"{@event.GetType().Name} is not supported");
@@ -77,14 +77,14 @@ public class Identity
         return identity;
     }
 
-    public void ChangePassword(EncryptedPassword encryptedPassword)
+    public void ChangePassword(PasswordHash passwordHash)
     {
-        EncryptedPassword = encryptedPassword;
+        PasswordHash = passwordHash;
 
         var now = DateTime.UtcNow;
         var @event = new PasswordChangedEvent
         {
-            EncryptedPassword = encryptedPassword,
+            PasswordHash = passwordHash,
             OccurredAt = now
         };
 
