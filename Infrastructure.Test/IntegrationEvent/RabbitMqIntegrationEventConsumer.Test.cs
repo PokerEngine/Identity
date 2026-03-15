@@ -193,7 +193,7 @@ public class RabbitMqIntegrationEventConsumerTest(
     private static DateTime GetNow()
     {
         // We drop milliseconds because they are not supported in RabbitMQ
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
         return new DateTime(
             now.Year,
             now.Month,

@@ -26,6 +26,7 @@ public class ConfirmPasswordResetHandler(
     {
         var accountUid = await passwordResetTokenStorage.VerifyTokenAsync(command.Token);
         var passwordHash = await passwordHasher.HashAsync(command.Password);
+        var now = DateTime.UtcNow;
 
         Identity identity;
 
@@ -35,13 +36,14 @@ public class ConfirmPasswordResetHandler(
                 accountUid: accountUid,
                 events: await repository.GetEventsAsync(accountUid)
             );
-            identity.ChangePassword(passwordHash);
+            identity.ChangePassword(passwordHash, now);
         }
         catch (IdentityNotFoundException)
         {
             identity = Identity.FromScratch(
                 accountUid: accountUid,
-                passwordHash: passwordHash
+                passwordHash: passwordHash,
+                now: now
             );
         }
 

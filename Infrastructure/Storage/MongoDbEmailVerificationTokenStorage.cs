@@ -31,11 +31,14 @@ public class MongoDbPasswordResetTokenStorage : IPasswordResetTokenStorage
     public async Task<string> GenerateTokenAsync(Guid accountUid)
     {
         var token = GenerateRandomString();
+        var now = DateTime.UtcNow;
+
         var document = new PasswordResetTokenDocument
         {
             AccountUid = accountUid,
             Token = token,
-            GeneratedAt = DateTime.UtcNow
+            GeneratedAt = now,
+            ExpiresAt = now +  _options.Ttl
         };
 
         await _collection.InsertOneAsync(document);
@@ -54,7 +57,7 @@ public class MongoDbPasswordResetTokenStorage : IPasswordResetTokenStorage
             throw new WrongPasswordResetTokenException("The token is not found");
         }
 
-        if (document.GeneratedAt + _options.Ttl < DateTime.UtcNow)
+        if (document.ExpiresAt < DateTime.UtcNow)
         {
             throw new WrongPasswordResetTokenException("The token is expired");
         }
@@ -90,4 +93,5 @@ internal record PasswordResetTokenDocument
     public required Guid AccountUid { get; init; }
     public required string Token { get; init; }
     public required DateTime GeneratedAt { get; init; }
+    public required DateTime ExpiresAt { get; init; }
 }

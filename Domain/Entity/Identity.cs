@@ -8,7 +8,7 @@ public class Identity
 {
     public AccountUid AccountUid { get; }
     public PasswordHash PasswordHash { get; private set; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; }
 
     private readonly List<IEvent> _events;
 
@@ -26,10 +26,10 @@ public class Identity
 
     public static Identity FromScratch(
         AccountUid accountUid,
-        PasswordHash passwordHash
+        PasswordHash passwordHash,
+        DateTime now
     )
     {
-        var now = DateTime.UtcNow;
         var identity = new Identity(
             accountUid: accountUid,
             passwordHash: passwordHash,
@@ -65,7 +65,7 @@ public class Identity
             switch (@event)
             {
                 case PasswordChangedEvent e:
-                    identity.ChangePassword(e.PasswordHash);
+                    identity.ChangePassword(e.PasswordHash, e.OccurredAt);
                     break;
                 default:
                     throw new InvalidIdentityStateException($"{@event.GetType().Name} is not supported");
@@ -77,11 +77,10 @@ public class Identity
         return identity;
     }
 
-    public void ChangePassword(PasswordHash passwordHash)
+    public void ChangePassword(PasswordHash passwordHash, DateTime now)
     {
         PasswordHash = passwordHash;
 
-        var now = DateTime.UtcNow;
         var @event = new PasswordChangedEvent
         {
             PasswordHash = passwordHash,

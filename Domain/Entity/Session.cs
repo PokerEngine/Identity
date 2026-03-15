@@ -9,7 +9,7 @@ public class Session
     public SessionUid Uid { get; }
     public AccountUid AccountUid { get; }
     public RefreshTokenHash RefreshTokenHash { get; private set; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; }
     public DateTime ExpiresAt { get; private set; }
     public DateTime? RevokedAt { get; private set; }
 
