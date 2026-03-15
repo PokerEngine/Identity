@@ -1,6 +1,6 @@
 namespace Domain.ValueObject;
 
-public readonly struct PasswordHash : IEquatable<PasswordHash>
+public readonly struct PasswordHash
 {
     private readonly string _value;
 
@@ -14,9 +14,6 @@ public readonly struct PasswordHash : IEquatable<PasswordHash>
 
     public static implicit operator PasswordHash(string a)
         => new(a);
-
-    public bool Equals(PasswordHash other)
-        => _value.Equals(other._value);
 
     public override string ToString()
         => "********";

@@ -2,11 +2,6 @@ using Domain.ValueObject;
 
 namespace Domain.Event;
 
-public interface IEvent
-{
-    DateTime OccurredAt { init; get; }
-}
-
 public sealed record PasswordInitializedEvent : IEvent
 {
     public required DateTime OccurredAt { get; init; }
