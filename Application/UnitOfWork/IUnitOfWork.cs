@@ -4,6 +4,6 @@ namespace Application.UnitOfWork;
 
 public interface IUnitOfWork
 {
-    void Register(Identity identity);
+    void RegisterIdentity(Identity identity);
     Task CommitAsync();
 }

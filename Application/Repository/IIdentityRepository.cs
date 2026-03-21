@@ -3,7 +3,7 @@ using Domain.ValueObject;
 
 namespace Application.Repository;
 
-public interface IRepository
+public interface IIdentityRepository
 {
     Task<bool> ExistsAsync(AccountUid accountUid);
     Task<List<IEvent>> GetEventsAsync(AccountUid accountUid);

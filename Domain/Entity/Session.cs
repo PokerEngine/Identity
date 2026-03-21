@@ -8,7 +8,6 @@ public class Session
 {
     public SessionUid Uid { get; }
     public AccountUid AccountUid { get; }
-    public RefreshTokenHash RefreshTokenHash { get; private set; }
     public DateTime CreatedAt { get; }
     public DateTime ExpiresAt { get; private set; }
     public DateTime? RevokedAt { get; private set; }
@@ -20,7 +19,6 @@ public class Session
     private Session(
         SessionUid uid,
         AccountUid accountUid,
-        RefreshTokenHash refreshTokenHash,
         DateTime createdAt,
         DateTime expiresAt,
         DateTime? revokedAt
@@ -28,7 +26,6 @@ public class Session
     {
         Uid = uid;
         AccountUid = accountUid;
-        RefreshTokenHash = refreshTokenHash;
         CreatedAt = createdAt;
         ExpiresAt = expiresAt;
         RevokedAt = revokedAt;
@@ -38,7 +35,6 @@ public class Session
     public static Session FromScratch(
         SessionUid uid,
         AccountUid accountUid,
-        RefreshTokenHash refreshTokenHash,
         DateTime expiresAt,
         DateTime now
     )
@@ -46,7 +42,6 @@ public class Session
         var session = new Session(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: refreshTokenHash,
             createdAt: now,
             expiresAt: expiresAt,
             revokedAt: null
@@ -55,7 +50,6 @@ public class Session
         var @event = new SessionCreatedEvent
         {
             AccountUid = accountUid,
-            RefreshTokenHash = refreshTokenHash,
             ExpiresAt = expiresAt,
             OccurredAt = now
         };
@@ -75,7 +69,6 @@ public class Session
         var session = new Session(
             uid: uid,
             accountUid: createdEvent.AccountUid,
-            refreshTokenHash: createdEvent.RefreshTokenHash,
             createdAt: createdEvent.OccurredAt,
             expiresAt: createdEvent.ExpiresAt,
             revokedAt: null
@@ -86,7 +79,7 @@ public class Session
             switch (@event)
             {
                 case SessionRefreshedEvent e:
-                    session.Refresh(e.RefreshTokenHash, e.ExpiresAt, e.OccurredAt);
+                    session.Refresh(e.ExpiresAt, e.OccurredAt);
                     break;
                 case SessionRevokedEvent e:
                     session.Revoke(e.OccurredAt);
@@ -101,7 +94,7 @@ public class Session
         return session;
     }
 
-    public void Refresh(RefreshTokenHash refreshTokenHash, DateTime expiresAt, DateTime now)
+    public void Refresh(DateTime expiresAt, DateTime now)
     {
         if (IsRevoked)
         {
@@ -113,12 +106,10 @@ public class Session
             throw new SessionExpiredException("The session is expired");
         }
 
-        RefreshTokenHash = refreshTokenHash;
         ExpiresAt = expiresAt;
 
         var @event = new SessionRefreshedEvent
         {
-            RefreshTokenHash = refreshTokenHash,
             ExpiresAt = expiresAt,
             OccurredAt = now
         };

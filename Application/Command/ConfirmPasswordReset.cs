@@ -16,7 +16,7 @@ public record ConfirmPasswordResetCommand : ICommand
 public record ConfirmPasswordResetResponse : ICommandResponse;
 
 public class ConfirmPasswordResetHandler(
-    IRepository repository,
+    IIdentityRepository identityRepository,
     IPasswordResetTokenStorage passwordResetTokenStorage,
     IPasswordHasher passwordHasher,
     IUnitOfWork unitOfWork
@@ -34,7 +34,7 @@ public class ConfirmPasswordResetHandler(
         {
             identity = Identity.FromEvents(
                 accountUid: accountUid,
-                events: await repository.GetEventsAsync(accountUid)
+                events: await identityRepository.GetEventsAsync(accountUid)
             );
             identity.ChangePassword(passwordHash, now);
         }
@@ -47,7 +47,7 @@ public class ConfirmPasswordResetHandler(
             );
         }
 
-        unitOfWork.Register(identity);
+        unitOfWork.RegisterIdentity(identity);
         await unitOfWork.CommitAsync();
 
         await passwordResetTokenStorage.DeleteTokensAsync(accountUid);

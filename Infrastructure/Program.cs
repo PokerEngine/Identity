@@ -37,11 +37,11 @@ public static class Bootstrapper
         );
         builder.Services.AddSingleton<RabbitMqClient>();
 
-        // Register repository
+        // Register repositories
         builder.Services.Configure<MongoDbRepositoryOptions>(
             builder.Configuration.GetSection(MongoDbRepositoryOptions.SectionName)
         );
-        builder.Services.AddSingleton<IRepository, MongoDbRepository>();
+        builder.Services.AddSingleton<IIdentityRepository, MongoDbIdentityRepository>();
 
         // Register storages
         builder.Services.Configure<MongoDbAccountStorageOptions>(

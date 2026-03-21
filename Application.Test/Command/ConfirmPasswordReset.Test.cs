@@ -39,7 +39,7 @@ public class ConfirmPasswordResetTest
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
-            repository: unitOfWork.Repository,
+            identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
             passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
@@ -49,7 +49,7 @@ public class ConfirmPasswordResetTest
         await handler.HandleAsync(command);
 
         // Assert
-        var identity = Identity.FromEvents(accountUid, await unitOfWork.Repository.GetEventsAsync(accountUid));
+        var identity = Identity.FromEvents(accountUid, await unitOfWork.IdentityRepository.GetEventsAsync(accountUid));
         Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
         var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
@@ -82,7 +82,7 @@ public class ConfirmPasswordResetTest
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
-            repository: unitOfWork.Repository,
+            identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
             passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
@@ -92,7 +92,7 @@ public class ConfirmPasswordResetTest
         await handler.HandleAsync(command);
 
         // Assert
-        var identity = Identity.FromEvents(accountUid, await unitOfWork.Repository.GetEventsAsync(accountUid));
+        var identity = Identity.FromEvents(accountUid, await unitOfWork.IdentityRepository.GetEventsAsync(accountUid));
         Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
         var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
@@ -114,7 +114,7 @@ public class ConfirmPasswordResetTest
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
-            repository: unitOfWork.Repository,
+            identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
             passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
@@ -154,7 +154,7 @@ public class ConfirmPasswordResetTest
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
-            repository: unitOfWork.Repository,
+            identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
             passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
@@ -185,7 +185,7 @@ public class ConfirmPasswordResetTest
             Password = "P@$$w0rd-old"
         };
         var handler = new ConfirmPasswordResetHandler(
-            repository: unitOfWork.Repository,
+            identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
             passwordHasher: passwordHasher,
             unitOfWork: unitOfWork
@@ -196,8 +196,8 @@ public class ConfirmPasswordResetTest
 
     private StubUnitOfWork CreateUnitOfWork()
     {
-        var repository = new StubRepository();
+        var identityRepository = new StubIdentityRepository();
         var eventDispatcher = new StubEventDispatcher();
-        return new StubUnitOfWork(repository, eventDispatcher);
+        return new StubUnitOfWork(identityRepository, eventDispatcher);
     }
 }

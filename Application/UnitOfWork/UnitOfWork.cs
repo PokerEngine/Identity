@@ -5,13 +5,13 @@ using Domain.Entity;
 namespace Application.UnitOfWork;
 
 public class UnitOfWork(
-    IRepository repository,
+    IIdentityRepository identityRepository,
     IEventDispatcher eventDispatcher
 ) : IUnitOfWork
 {
     private readonly HashSet<Identity> _identities = [];
 
-    public void Register(Identity identity)
+    public void RegisterIdentity(Identity identity)
     {
         _identities.Add(identity);
     }
@@ -27,7 +27,7 @@ public class UnitOfWork(
                 continue;
             }
 
-            await repository.AddEventsAsync(identity.AccountUid, events);
+            await identityRepository.AddEventsAsync(identity.AccountUid, events);
 
             var context = new EventContext { AccountUid = identity.AccountUid };
             foreach (var @event in events)

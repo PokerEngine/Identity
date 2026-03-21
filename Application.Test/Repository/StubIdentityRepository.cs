@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace Application.Test.Repository;
 
-public class StubRepository : IRepository
+public class StubIdentityRepository : IIdentityRepository
 {
     private readonly ConcurrentDictionary<AccountUid, List<IEvent>> _mapping = new();
 

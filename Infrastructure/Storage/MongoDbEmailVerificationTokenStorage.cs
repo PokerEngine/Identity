@@ -38,7 +38,7 @@ public class MongoDbPasswordResetTokenStorage : IPasswordResetTokenStorage
             AccountUid = accountUid,
             Token = token,
             GeneratedAt = now,
-            ExpiresAt = now +  _options.Ttl
+            ExpiresAt = now + _options.Ttl
         };
 
         await _collection.InsertOneAsync(document);

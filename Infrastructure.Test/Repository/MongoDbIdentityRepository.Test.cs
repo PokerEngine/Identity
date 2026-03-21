@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Infrastructure.Test.Repository;
 
 [Trait("Category", "Integration")]
-public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture<MongoDbClientFixture>
+public class MongoDbIdentityRepositoryTest(MongoDbClientFixture fixture) : IClassFixture<MongoDbClientFixture>
 {
     [Fact]
     public async Task GetEventsAsync_WhenExists_ShouldReturn()
@@ -18,7 +18,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         var repository = CreateRepository();
 
         var accountUid = new AccountUid(Guid.NewGuid());
-        var @event = new TestEvent
+        var @event = new TestIdentityEvent
         {
             PasswordHash = new PasswordHash("abcdef"),
             OccurredAt = GetNow()
@@ -30,7 +30,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
 
         // Assert
         Assert.Single(events);
-        var typedEvent = Assert.IsType<TestEvent>(events[0]);
+        var typedEvent = Assert.IsType<TestIdentityEvent>(events[0]);
         Assert.Equal(@event, typedEvent);
     }
 
@@ -41,7 +41,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         var repository = CreateRepository();
 
         var accountUid = new AccountUid(Guid.NewGuid());
-        var @event = new TestEvent
+        var @event = new TestIdentityEvent
         {
             PasswordHash = new PasswordHash("abcdef"),
             OccurredAt = GetNow()
@@ -55,11 +55,11 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
         Assert.Equal("The identity is not found", exc.Message);
     }
 
-    private IRepository CreateRepository()
+    private IIdentityRepository CreateRepository()
     {
         var client = fixture.CreateClient();
         var options = CreateOptions();
-        return new MongoDbRepository(client, options);
+        return new MongoDbIdentityRepository(client, options);
     }
 
     private IOptions<MongoDbRepositoryOptions> CreateOptions()
@@ -79,7 +79,7 @@ public class MongoDbRepositoryTest(MongoDbClientFixture fixture) : IClassFixture
     }
 }
 
-internal sealed record TestEvent : IEvent
+internal sealed record TestIdentityEvent : IEvent
 {
     public required PasswordHash PasswordHash { get; init; }
     public required DateTime OccurredAt { get; init; }

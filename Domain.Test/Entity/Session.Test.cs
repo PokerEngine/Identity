@@ -18,7 +18,6 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
@@ -26,7 +25,6 @@ public class SessionTest
         // Assert
         Assert.Equal(uid, session.Uid);
         Assert.Equal(accountUid, session.AccountUid);
-        Assert.Equal(new RefreshTokenHash("abcdef"), session.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 2), session.ExpiresAt);
         Assert.Null(session.RevokedAt);
         Assert.Equal(new DateTime(2025, 1, 1), session.CreatedAt);
@@ -35,7 +33,6 @@ public class SessionTest
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<SessionCreatedEvent>(pulledEvents[0]);
         Assert.Equal(accountUid, @event.AccountUid);
-        Assert.Equal(new RefreshTokenHash("abcdef"), @event.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 2), @event.ExpiresAt);
         Assert.Equal(new DateTime(2025, 1, 1), @event.OccurredAt);
     }
@@ -51,13 +48,11 @@ public class SessionTest
             new SessionCreatedEvent
             {
                 AccountUid = accountUid,
-                RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new SessionRefreshedEvent
             {
-                RefreshTokenHash = new RefreshTokenHash("ghijkl"),
                 ExpiresAt = new DateTime(2025, 1, 3),
                 OccurredAt = new DateTime(2025, 1, 2)
             },
@@ -73,7 +68,6 @@ public class SessionTest
         // Assert
         Assert.Equal(uid, session.Uid);
         Assert.Equal(accountUid, session.AccountUid);
-        Assert.Equal(new RefreshTokenHash("ghijkl"), session.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 3), session.ExpiresAt);
         Assert.Equal(new DateTime(2025, 1, 4), session.RevokedAt);
         Assert.Equal(new DateTime(2025, 1, 1), session.CreatedAt);
@@ -93,14 +87,12 @@ public class SessionTest
             new SessionCreatedEvent
             {
                 AccountUid = accountUid,
-                RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new SessionCreatedEvent
             {
                 AccountUid = accountUid,
-                RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
@@ -122,23 +114,20 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
         session.PullEvents();
 
         // Act
-        session.Refresh(new RefreshTokenHash("ghijkl"), new DateTime(2025, 1, 3), new DateTime(2025, 1, 2));
+        session.Refresh(new DateTime(2025, 1, 3), new DateTime(2025, 1, 2));
 
         // Assert
-        Assert.Equal(new RefreshTokenHash("ghijkl"), session.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 3), session.ExpiresAt);
 
         var pulledEvents = session.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<SessionRefreshedEvent>(pulledEvents[0]);
-        Assert.Equal(new RefreshTokenHash("ghijkl"), @event.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 3), @event.ExpiresAt);
         Assert.Equal(new DateTime(2025, 1, 2), @event.OccurredAt);
     }
@@ -152,7 +141,6 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
@@ -160,7 +148,7 @@ public class SessionTest
 
         // Act
         var exc = Assert.Throws<SessionExpiredException>(
-            () => session.Refresh(new RefreshTokenHash("ghijkl"), new DateTime(2025, 1, 4), new DateTime(2025, 1, 3))
+            () => session.Refresh(new DateTime(2025, 1, 4), new DateTime(2025, 1, 3))
         );
 
         // Assert
@@ -178,7 +166,6 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
@@ -187,7 +174,7 @@ public class SessionTest
 
         // Act
         var exc = Assert.Throws<SessionRevokedException>(
-            () => session.Refresh(new RefreshTokenHash("ghijkl"), new DateTime(2025, 1, 3), new DateTime(2025, 1, 2))
+            () => session.Refresh(new DateTime(2025, 1, 3), new DateTime(2025, 1, 2))
         );
 
         // Assert
@@ -205,7 +192,6 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
@@ -232,7 +218,6 @@ public class SessionTest
         var session = Session.FromScratch(
             uid: uid,
             accountUid: accountUid,
-            refreshTokenHash: new RefreshTokenHash("abcdef"),
             expiresAt: new DateTime(2025, 1, 2),
             now: new DateTime(2025, 1, 1)
         );
