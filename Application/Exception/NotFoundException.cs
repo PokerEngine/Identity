@@ -20,3 +20,10 @@ public class AccountNotFoundException : NotFoundException
 
     public AccountNotFoundException(string message, System.Exception innerException) : base(message, innerException) { }
 }
+
+public class SessionNotFoundException : NotFoundException
+{
+    public SessionNotFoundException(string message) : base(message) { }
+
+    public SessionNotFoundException(string message, System.Exception innerException) : base(message, innerException) { }
+}

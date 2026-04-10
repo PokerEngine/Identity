@@ -1,22 +1,22 @@
 using Application.Exception;
-using Application.Service.PasswordHasher;
+using Application.Service.RefreshTokenHasher;
 using Domain.ValueObject;
 using System.Security.Cryptography;
 
-namespace Infrastructure.Service.PasswordHasher;
+namespace Infrastructure.Service.RefreshTokenHasher;
 
-public class Pbkdf2PasswordHasher : IPasswordHasher
+public class Pbkdf2RefreshTokenHasher : IRefreshTokenHasher
 {
     private const int SaltSize = 16; // 128-bit
     private const int HashSize = 32; // 256-bit
     private const int Iterations = 100_000;
 
-    public Task<PasswordHash> HashAsync(Password password)
+    public Task<RefreshTokenHash> HashAsync(string refreshToken)
     {
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
         using var pbkdf2 = new Rfc2898DeriveBytes(
-            password,
+            refreshToken,
             salt,
             Iterations,
             HashAlgorithmName.SHA256
@@ -30,14 +30,14 @@ public class Pbkdf2PasswordHasher : IPasswordHasher
 
         var encoded = Convert.ToBase64String(combined);
 
-        return Task.FromResult(new PasswordHash(encoded));
+        return Task.FromResult(new RefreshTokenHash(encoded));
     }
 
     public Task VerifyAsync(
-        Password password,
-        PasswordHash passwordHash)
+        string refreshToken,
+        RefreshTokenHash refreshTokenHash)
     {
-        var combined = Convert.FromBase64String(passwordHash);
+        var combined = Convert.FromBase64String(refreshTokenHash);
 
         var salt = new byte[SaltSize];
         var storedHash = new byte[HashSize];
@@ -46,7 +46,7 @@ public class Pbkdf2PasswordHasher : IPasswordHasher
         Buffer.BlockCopy(combined, SaltSize, storedHash, 0, HashSize);
 
         using var pbkdf2 = new Rfc2898DeriveBytes(
-            password,
+            refreshToken,
             salt,
             Iterations,
             HashAlgorithmName.SHA256);
@@ -55,9 +55,10 @@ public class Pbkdf2PasswordHasher : IPasswordHasher
 
         if (!CryptographicOperations.FixedTimeEquals(storedHash, computedHash))
         {
-            throw new WrongCredentialsException("The credentials are wrong");
+            throw new WrongAuthTokenException("The token is wrong");
         }
 
         return Task.CompletedTask;
     }
 }
+

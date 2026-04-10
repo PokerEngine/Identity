@@ -2,25 +2,25 @@ using Domain.ValueObject;
 
 namespace Domain.Test.ValueObject;
 
-public class PasswordHashTest
+public class RefreshTokenHashTest
 {
     [Fact]
     public void Constructor_WhenValid_ShouldConstruct()
     {
         // Arrange & Act
-        var passwordHash = new PasswordHash("abcdef");
+        var refreshTokenHash = new RefreshTokenHash("abcdef");
 
         // Assert
-        Assert.Equal("abcdef", (string)passwordHash);
+        Assert.Equal("abcdef", (string)refreshTokenHash);
     }
 
     [Fact]
     public void ToString_WhenValid_ShouldReturnValidString()
     {
         // Arrange
-        var passwordHash = new PasswordHash("abcdef");
+        var refreshTokenHash = new RefreshTokenHash("abcdef");
 
         // Act & Assert
-        Assert.Equal("abcdef", $"{passwordHash}");
+        Assert.Equal("abcdef", $"{refreshTokenHash}");
     }
 }

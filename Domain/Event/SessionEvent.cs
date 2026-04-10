@@ -7,6 +7,7 @@ public sealed record SessionCreatedEvent : IEvent
     public required DateTime OccurredAt { get; init; }
 
     public required AccountUid AccountUid { get; init; }
+    public required RefreshTokenHash RefreshTokenHash { get; init; }
     public required DateTime ExpiresAt { get; init; }
 }
 
@@ -14,6 +15,7 @@ public sealed record SessionRefreshedEvent : IEvent
 {
     public required DateTime OccurredAt { get; init; }
 
+    public required RefreshTokenHash RefreshTokenHash { get; init; }
     public required DateTime ExpiresAt { get; init; }
 }
 

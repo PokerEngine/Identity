@@ -14,7 +14,6 @@ namespace Application.Test.Command;
 
 public class ConfirmPasswordResetTest
 {
-
     [Fact]
     public async Task HandleAsync_WhenIdentityNotExists_ShouldInitializePassword()
     {
@@ -24,13 +23,13 @@ public class ConfirmPasswordResetTest
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var unitOfWork = CreateUnitOfWork();
-        var accountView = new AccountView
+        var account = new AccountView
         {
             AccountUid = accountUid,
             Nickname = "Alice",
             Email = "alice.alright@test.com"
         };
-        await accountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(account);
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
@@ -66,14 +65,14 @@ public class ConfirmPasswordResetTest
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var unitOfWork = CreateUnitOfWork();
-        var accountView = new AccountView
+        var account = new AccountView
         {
             AccountUid = accountUid,
             Nickname = "Alice",
             Email = "alice.alright@test.com"
         };
-        await accountStorage.SaveViewAsync(accountView);
-        await ConfirmPasswordResetPasswordAsync(passwordHasher, passwordResetTokenStorage, unitOfWork, accountUid);
+        await accountStorage.SaveViewAsync(account);
+        await ConfirmPasswordResetPasswordAsync(passwordHasher, passwordResetTokenStorage, unitOfWork, accountUid, "P@$$w0rd-old");
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
@@ -139,13 +138,13 @@ public class ConfirmPasswordResetTest
         var accountStorage = new StubAccountStorage();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 0, 0));
         var unitOfWork = CreateUnitOfWork();
-        var accountView = new AccountView
+        var account = new AccountView
         {
             AccountUid = accountUid,
             Nickname = "Alice",
             Email = "alice.alright@test.com"
         };
-        await accountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(account);
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
@@ -174,7 +173,8 @@ public class ConfirmPasswordResetTest
         StubPasswordHasher passwordHasher,
         StubPasswordResetTokenStorage passwordResetTokenStorage,
         StubUnitOfWork unitOfWork,
-        Guid accountUid
+        Guid accountUid,
+        string password = "P@$$w0rd"
     )
     {
         var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
@@ -182,7 +182,7 @@ public class ConfirmPasswordResetTest
         var command = new ConfirmPasswordResetCommand
         {
             Token = token,
-            Password = "P@$$w0rd-old"
+            Password = password
         };
         var handler = new ConfirmPasswordResetHandler(
             identityRepository: unitOfWork.IdentityRepository,
@@ -197,7 +197,8 @@ public class ConfirmPasswordResetTest
     private StubUnitOfWork CreateUnitOfWork()
     {
         var identityRepository = new StubIdentityRepository();
+        var sessionRepository = new StubSessionRepository();
         var eventDispatcher = new StubEventDispatcher();
-        return new StubUnitOfWork(identityRepository, eventDispatcher);
+        return new StubUnitOfWork(identityRepository, sessionRepository, eventDispatcher);
     }
 }

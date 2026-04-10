@@ -2,7 +2,10 @@ using Application.Command;
 using Application.Event;
 using Application.IntegrationEvent;
 using Application.Repository;
+using Application.Service.AuthTokenCodec;
+using Application.Service.MessageSender;
 using Application.Service.PasswordHasher;
+using Application.Service.RefreshTokenHasher;
 using Application.Storage;
 using Application.UnitOfWork;
 using Domain.Event;
@@ -12,7 +15,10 @@ using Infrastructure.Command;
 using Infrastructure.Event;
 using Infrastructure.IntegrationEvent;
 using Infrastructure.Repository;
+using Infrastructure.Service.AuthTokenCodec;
+using Infrastructure.Service.MessageSender;
 using Infrastructure.Service.PasswordHasher;
+using Infrastructure.Service.RefreshTokenHasher;
 using Infrastructure.Storage;
 using Microsoft.Extensions.Options;
 
@@ -42,6 +48,7 @@ public static class Bootstrapper
             builder.Configuration.GetSection(MongoDbRepositoryOptions.SectionName)
         );
         builder.Services.AddSingleton<IIdentityRepository, MongoDbIdentityRepository>();
+        builder.Services.AddSingleton<ISessionRepository, MongoDbSessionRepository>();
 
         // Register storages
         builder.Services.Configure<MongoDbAccountStorageOptions>(
@@ -56,12 +63,20 @@ public static class Bootstrapper
         // Register unit of work
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Register password hasher
+        // Register services
+        builder.Services.Configure<JwtAuthTokenCodecOptions>(
+            builder.Configuration.GetSection(JwtAuthTokenCodecOptions.SectionName)
+        );
+        builder.Services.AddSingleton<IAuthTokenCodec, JwtAuthTokenCodec>();
         builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
+        builder.Services.AddSingleton<IRefreshTokenHasher, Pbkdf2RefreshTokenHasher>();
+        builder.Services.AddSingleton<IMessageSender, ConsoleMessageSender>();
 
         // Register commands
         RegisterCommandHandler<RequestPasswordResetCommand, RequestPasswordResetHandler, RequestPasswordResetResponse>(builder.Services);
         RegisterCommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetHandler, ConfirmPasswordResetResponse>(builder.Services);
+        RegisterCommandHandler<CreateSessionCommand, CreateSessionHandler, CreateSessionResponse>(builder.Services);
+        RegisterCommandHandler<RefreshSessionCommand, RefreshSessionHandler, RefreshSessionResponse>(builder.Services);
         builder.Services.AddScoped<ICommandDispatcher, CommandDispatcher>();
 
         // Register domain events

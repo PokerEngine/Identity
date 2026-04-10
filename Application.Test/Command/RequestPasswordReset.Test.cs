@@ -15,14 +15,14 @@ public class RequestPasswordResetTest
         var messageSender = new StubMessageSender();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var accountStorage = new StubAccountStorage();
-        var accountView = new AccountView
+        var account = new AccountView
         {
             AccountUid = accountUid,
             Nickname = "Alice",
             Email = "alice.alright@test.com",
             IsEmailVerified = true
         };
-        await accountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(account);
 
         var command = new RequestPasswordResetCommand
         {
@@ -49,13 +49,13 @@ public class RequestPasswordResetTest
         var messageSender = new StubMessageSender();
         var passwordResetTokenStorage = new StubPasswordResetTokenStorage(new TimeSpan(0, 5, 0));
         var accountStorage = new StubAccountStorage();
-        var accountView = new AccountView
+        var account = new AccountView
         {
             AccountUid = accountUid,
             Nickname = "Alice",
             Email = "alice.alright@test.com"
         };
-        await accountStorage.SaveViewAsync(accountView);
+        await accountStorage.SaveViewAsync(account);
 
         var command = new RequestPasswordResetCommand
         {

@@ -16,7 +16,7 @@ public class StubPasswordHasher : IPasswordHasher
     {
         if (Reverse(password) != passwordHash)
         {
-            throw new WrongPasswordException("The password is wrong");
+            throw new WrongCredentialsException("The credentials are wrong");
         }
 
         return Task.CompletedTask;

@@ -11,29 +11,26 @@ using MongoDB.Driver;
 
 namespace Infrastructure.Repository;
 
-public class MongoDbIdentityRepository : IIdentityRepository
+public class MongoDbSessionRepository : ISessionRepository
 {
-    private const string CollectionName = "identity_events";
-    private readonly IMongoCollection<IdentityEventDocument> _collection;
+    private const string CollectionName = "session_events";
+    private readonly IMongoCollection<SessionEventDocument> _collection;
 
-    public MongoDbIdentityRepository(MongoDbClient client, IOptions<MongoDbRepositoryOptions> options)
+    public MongoDbSessionRepository(MongoDbClient client, IOptions<MongoDbRepositoryOptions> options)
     {
         var db = client.Client.GetDatabase(options.Value.Database);
-        _collection = db.GetCollection<IdentityEventDocument>(CollectionName);
+        _collection = db.GetCollection<SessionEventDocument>(CollectionName);
     }
 
-    public async Task<bool> ExistsAsync(AccountUid accountUid)
+    public Task<SessionUid> GetNextUidAsync()
     {
-        var document = await _collection
-            .Find(e => e.AccountUid == accountUid)
-            .FirstOrDefaultAsync();
-        return document is not null;
+        return Task.FromResult(new SessionUid(Guid.NewGuid()));
     }
 
-    public async Task<List<IEvent>> GetEventsAsync(AccountUid accountUid)
+    public async Task<List<IEvent>> GetEventsAsync(SessionUid uid)
     {
         var documents = await _collection
-            .Find(e => e.AccountUid == accountUid)
+            .Find(e => e.SessionUid == uid)
             .SortBy(e => e.Id)
             .ToListAsync();
 
@@ -48,18 +45,18 @@ public class MongoDbIdentityRepository : IIdentityRepository
 
         if (events.Count == 0)
         {
-            throw new IdentityNotFoundException("The identity is not found");
+            throw new SessionNotFoundException("The session is not found");
         }
 
         return events;
     }
 
-    public async Task AddEventsAsync(AccountUid accountUid, List<IEvent> events)
+    public async Task AddEventsAsync(SessionUid uid, List<IEvent> events)
     {
-        var documents = events.Select(e => new IdentityEventDocument
+        var documents = events.Select(e => new SessionEventDocument
         {
             Type = MongoDbEventTypeResolver.GetName(e),
-            AccountUid = accountUid,
+            SessionUid = uid,
             OccurredAt = e.OccurredAt,
             Data = e.ToBsonDocument(e.GetType())
         });
@@ -68,13 +65,13 @@ public class MongoDbIdentityRepository : IIdentityRepository
     }
 }
 
-internal sealed class IdentityEventDocument
+internal sealed class SessionEventDocument
 {
     [BsonId]
     public ObjectId Id { get; init; }
 
     public required string Type { get; init; }
-    public required AccountUid AccountUid { get; init; }
+    public required SessionUid SessionUid { get; init; }
     public required DateTime OccurredAt { get; init; }
     public required BsonDocument Data { get; init; }
 }

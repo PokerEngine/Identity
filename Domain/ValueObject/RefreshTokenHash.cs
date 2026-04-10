@@ -1,18 +1,18 @@
 namespace Domain.ValueObject;
 
-public readonly struct PasswordHash
+public readonly struct RefreshTokenHash
 {
     private readonly string _value;
 
-    public PasswordHash(string value)
+    public RefreshTokenHash(string value)
     {
         _value = value;
     }
 
-    public static implicit operator string(PasswordHash a)
+    public static implicit operator string(RefreshTokenHash a)
         => a._value;
 
-    public static implicit operator PasswordHash(string a)
+    public static implicit operator RefreshTokenHash(string a)
         => new(a);
 
     public override string ToString()

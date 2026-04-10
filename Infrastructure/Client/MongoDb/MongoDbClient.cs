@@ -35,7 +35,9 @@ internal static class MongoDbSerializerConfig
     {
         BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         BsonSerializer.TryRegisterSerializer(new AccountUidSerializer());
+        BsonSerializer.TryRegisterSerializer(new SessionUidSerializer());
         BsonSerializer.TryRegisterSerializer(new PasswordHashSerializer());
+        BsonSerializer.TryRegisterSerializer(new RefreshTokenHashSerializer());
     }
 }
 
@@ -48,11 +50,29 @@ internal sealed class AccountUidSerializer : SerializerBase<AccountUid>
         => context.Reader.ReadGuid();
 }
 
+internal sealed class SessionUidSerializer : SerializerBase<SessionUid>
+{
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, SessionUid value)
+        => context.Writer.WriteGuid(value);
+
+    public override SessionUid Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        => context.Reader.ReadGuid();
+}
+
 internal sealed class PasswordHashSerializer : SerializerBase<PasswordHash>
 {
     public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, PasswordHash value)
         => context.Writer.WriteString(value);
 
     public override PasswordHash Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        => context.Reader.ReadString();
+}
+
+internal sealed class RefreshTokenHashSerializer : SerializerBase<RefreshTokenHash>
+{
+    public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, RefreshTokenHash value)
+        => context.Writer.WriteString(value);
+
+    public override RefreshTokenHash Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         => context.Reader.ReadString();
 }
