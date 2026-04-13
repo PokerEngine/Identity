@@ -1,8 +1,8 @@
-@Infrastructure_HostAddress = http://0.0.0.0:5260
+@Api_HostAddress = http://0.0.0.0:5260
 client.global.set("accountUid", "00000000-0000-0000-0000-000000000000");
 
 ### Request password reset
-POST {{Infrastructure_HostAddress}}/api/identity/password-reset/request
+POST {{Api_HostAddress}}/api/identity/password-reset/request
 Accept: application/json
 Content-Type: application/json
 
@@ -11,7 +11,7 @@ Content-Type: application/json
 }
 
 ### Confirm password reset
-POST {{Infrastructure_HostAddress}}/api/identity/password-reset/confirm
+POST {{Api_HostAddress}}/api/identity/password-reset/confirm
 Accept: application/json
 Content-Type: application/json
 

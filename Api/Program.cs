@@ -22,7 +22,7 @@ using Infrastructure.Service.RefreshTokenHasher;
 using Infrastructure.Storage;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure;
+namespace Api;
 
 public static class Bootstrapper
 {
@@ -145,15 +145,12 @@ public class Program
         app.Run();
     }
 
-    // Public method for creating the WebApplication - can be called by tests
-    // This allows WebApplicationFactory to work properly with the minimal hosting model
     private static WebApplication CreateWebApplication(string[] args)
     {
         var builder = Bootstrapper.PrepareApplicationBuilder(args);
         return ConfigureApplication(builder);
     }
 
-    // Configure the application pipeline
     private static WebApplication ConfigureApplication(WebApplicationBuilder builder)
     {
         var app = builder.Build();

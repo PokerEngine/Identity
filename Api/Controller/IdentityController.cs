@@ -1,7 +1,7 @@
 using Application.Command;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Infrastructure.Controller;
+namespace Api.Controller;
 
 [ApiController]
 [Route("api/identity")]
