@@ -19,9 +19,9 @@ public class RabbitMqIntegrationEventPublisherTest(
     private IChannel _channel = default!;
 
     private const string ExchangeType = "topic";
-    private const string ExchangeName = "test.integration-event-publisher-exchange";
-    private const string QueueName = "test.integration-event-publisher-queue";
-    private const string RoutingKey = "test.integration-event-publisher-routing-key";
+    private readonly string ExchangeName = $"test.integration-event-publisher-exchange.uuid-{Guid.NewGuid()}";
+    private readonly string QueueName = $"test.integration-event-publisher-queue.uuid-{Guid.NewGuid()}";
+    private readonly string RoutingKey = $"test.integration-event-publisher-routing-key.uuid-{Guid.NewGuid()}";
 
     [Theory]
     [InlineData(true)]
