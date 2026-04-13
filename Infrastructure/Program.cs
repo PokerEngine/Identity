@@ -77,6 +77,7 @@ public static class Bootstrapper
         RegisterCommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetHandler, ConfirmPasswordResetResponse>(builder.Services);
         RegisterCommandHandler<CreateSessionCommand, CreateSessionHandler, CreateSessionResponse>(builder.Services);
         RegisterCommandHandler<RefreshSessionCommand, RefreshSessionHandler, RefreshSessionResponse>(builder.Services);
+        RegisterCommandHandler<RevokeSessionCommand, RevokeSessionHandler, RevokeSessionResponse>(builder.Services);
         builder.Services.AddScoped<ICommandDispatcher, CommandDispatcher>();
 
         // Register domain events
