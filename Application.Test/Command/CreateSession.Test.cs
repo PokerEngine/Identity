@@ -9,6 +9,7 @@ using Application.Test.Service.RefreshTokenHasher;
 using Application.Test.Storage;
 using Application.Test.UnitOfWork;
 using Domain.Entity;
+using Domain.Event;
 
 namespace Application.Test.Command;
 
@@ -67,7 +68,10 @@ public class CreateSessionTest
         var refreshTokenHash = await refreshTokenHasher.HashAsync(response.RefreshToken);
         Assert.Equal(refreshTokenHash, session.RefreshTokenHash);
 
-        // TODO: check events
+        var events = unitOfWork.EventDispatcher.GetDispatchedEvents();
+        Assert.Single(events);
+        var sessionCreatedEvent = Assert.IsType<SessionCreatedEvent>(events[0]);
+        Assert.Equal(session.Uid, sessionCreatedEvent.SessionUid);
     }
 
     [Fact]
@@ -253,7 +257,7 @@ public class CreateSessionTest
             unitOfWork: unitOfWork
         );
         await handler.HandleAsync(command);
-        await unitOfWork.EventDispatcher.ClearDispatchedEvents(accountUid);
+        unitOfWork.EventDispatcher.ClearDispatchedEvents();
     }
 
     private StubUnitOfWork CreateUnitOfWork()

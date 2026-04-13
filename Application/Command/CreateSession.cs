@@ -86,7 +86,7 @@ public class CreateSessionHandler(
             now: DateTime.UtcNow
         );
 
-        unitOfWork.RegisterSession(session);
+        unitOfWork.Register(session);
         await unitOfWork.CommitAsync();
 
         return new CreateSessionResponse

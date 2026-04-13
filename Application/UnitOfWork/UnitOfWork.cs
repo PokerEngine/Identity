@@ -1,6 +1,7 @@
 using Application.Event;
 using Application.Repository;
 using Domain.Entity;
+using Domain.Event;
 
 namespace Application.UnitOfWork;
 
@@ -10,68 +11,33 @@ public class UnitOfWork(
     IEventDispatcher eventDispatcher
 ) : IUnitOfWork
 {
-    private readonly HashSet<Identity> _identities = [];
-    private readonly HashSet<Session> _sessions = [];
+    private readonly List<Func<Task>> _commits = [];
 
-    public void RegisterIdentity(Identity identity)
-    {
-        _identities.Add(identity);
-    }
+    public void Register(Identity identity) =>
+        _commits.Add(() => CommitAsync(
+            identity,
+            events => identityRepository.AddEventsAsync(identity.AccountUid, events)
+        ));
 
-    public void RegisterSession(Session session)
-    {
-        _sessions.Add(session);
-    }
+    public void Register(Session session) =>
+        _commits.Add(() => CommitAsync(
+            session,
+            events => sessionRepository.AddEventsAsync(session.Uid, events)
+        ));
 
     public async Task CommitAsync()
     {
-        await CommitIdentityAsync();
-        await CommitSessionAsync();
+        foreach (var commit in _commits)
+            await commit();
+        _commits.Clear();
     }
 
-    private async Task CommitIdentityAsync()
+    private async Task CommitAsync(IAggregateRoot aggregate, Func<List<IEvent>, Task> persist)
     {
-        foreach (var identity in _identities)
-        {
-            var events = identity.PullEvents();
-
-            if (events.Count == 0)
-            {
-                continue;
-            }
-
-            await identityRepository.AddEventsAsync(identity.AccountUid, events);
-
-            var context = new EventContext { AccountUid = identity.AccountUid };
-            foreach (var @event in events)
-            {
-                await eventDispatcher.DispatchAsync(@event, context);
-            }
-        }
-
-        _identities.Clear();
-    }
-
-    private async Task CommitSessionAsync()
-    {
-        foreach (var session in _sessions)
-        {
-            var events = session.PullEvents();
-
-            if (events.Count == 0)
-            {
-                continue;
-            }
-
-            await sessionRepository.AddEventsAsync(session.Uid, events);
-
-            var context = new EventContext { AccountUid = session.AccountUid };
-            foreach (var @event in events)
-            {
-                await eventDispatcher.DispatchAsync(@event, context);
-            }
-        }
-
-        _sessions.Clear();
+        var events = aggregate.PullEvents();
+        if (events.Count == 0) return;
+        await persist(events);
+        foreach (var @event in events)
+            await eventDispatcher.DispatchAsync(@event);
     }
 }

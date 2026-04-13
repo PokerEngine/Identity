@@ -9,6 +9,8 @@ using Application.Test.Service.PasswordHasher;
 using Application.Test.Service.RefreshTokenHasher;
 using Application.Test.Storage;
 using Application.Test.UnitOfWork;
+using Domain.Event;
+using Domain.ValueObject;
 
 namespace Application.Test.Command;
 
@@ -60,7 +62,10 @@ public class RefreshSessionTest
         Assert.True(DateTime.Now + new TimeSpan(0, 15, 0) >= response.AccessTokenExpiresAt);
         Assert.True(DateTime.Now + new TimeSpan(30, 0, 0, 0) >= response.RefreshTokenExpiresAt);
 
-        // TODO: check events
+        var events = unitOfWork.EventDispatcher.GetDispatchedEvents();
+        Assert.Single(events);
+        var sessionRefreshedEvent = Assert.IsType<SessionRefreshedEvent>(events[0]);
+        Assert.Equal(new SessionUid(accessTokenPayload.SessionUid), sessionRefreshedEvent.SessionUid);
     }
 
     [Fact]
@@ -133,7 +138,7 @@ public class RefreshSessionTest
             unitOfWork: unitOfWork
         );
         await handler.HandleAsync(command);
-        await unitOfWork.EventDispatcher.ClearDispatchedEvents(accountUid);
+        unitOfWork.EventDispatcher.ClearDispatchedEvents();
     }
 
     private async Task<string> CreateSessionAsync(
@@ -161,7 +166,7 @@ public class RefreshSessionTest
         var response = await handler.HandleAsync(command);
 
         var accountUid = (await authTokenCodec.DecodeAccessTokenAsync(response.AccessToken)).AccountUid;
-        await unitOfWork.EventDispatcher.ClearDispatchedEvents(accountUid);
+        unitOfWork.EventDispatcher.ClearDispatchedEvents();
 
         return response.RefreshToken;
     }

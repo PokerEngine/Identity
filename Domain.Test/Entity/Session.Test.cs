@@ -34,6 +34,7 @@ public class SessionTest
         var pulledEvents = session.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<SessionCreatedEvent>(pulledEvents[0]);
+        Assert.Equal(uid, @event.SessionUid);
         Assert.Equal(accountUid, @event.AccountUid);
         Assert.Equal(new RefreshTokenHash("abcdef"), @event.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 2), @event.ExpiresAt);
@@ -50,6 +51,7 @@ public class SessionTest
         {
             new SessionCreatedEvent
             {
+                SessionUid = uid,
                 AccountUid = accountUid,
                 RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
@@ -57,12 +59,14 @@ public class SessionTest
             },
             new SessionRefreshedEvent
             {
+                SessionUid = uid,
                 RefreshTokenHash = new RefreshTokenHash("ghijkl"),
                 ExpiresAt = new DateTime(2025, 1, 3),
                 OccurredAt = new DateTime(2025, 1, 2)
             },
             new SessionRevokedEvent
             {
+                SessionUid = uid,
                 OccurredAt = new DateTime(2025, 1, 4)
             }
         };
@@ -92,6 +96,7 @@ public class SessionTest
         {
             new SessionCreatedEvent
             {
+                SessionUid = uid,
                 AccountUid = accountUid,
                 RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
@@ -99,6 +104,7 @@ public class SessionTest
             },
             new SessionCreatedEvent
             {
+                SessionUid = uid,
                 AccountUid = accountUid,
                 RefreshTokenHash = new RefreshTokenHash("abcdef"),
                 ExpiresAt = new DateTime(2025, 1, 2),
@@ -138,6 +144,7 @@ public class SessionTest
         var pulledEvents = session.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<SessionRefreshedEvent>(pulledEvents[0]);
+        Assert.Equal(uid, @event.SessionUid);
         Assert.Equal(new RefreshTokenHash("ghijkl"), @event.RefreshTokenHash);
         Assert.Equal(new DateTime(2025, 1, 3), @event.ExpiresAt);
         Assert.Equal(new DateTime(2025, 1, 2), @event.OccurredAt);
@@ -220,6 +227,7 @@ public class SessionTest
         var pulledEvents = session.PullEvents();
         Assert.Single(pulledEvents);
         var @event = Assert.IsType<SessionRevokedEvent>(pulledEvents[0]);
+        Assert.Equal(uid, @event.SessionUid);
         Assert.Equal(new DateTime(2025, 1, 2), @event.OccurredAt);
     }
 

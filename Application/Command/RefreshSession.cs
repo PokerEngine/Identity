@@ -72,7 +72,7 @@ public class RefreshSessionHandler(
 
         session.Refresh(newRefreshTokenHash, newAccessTokenPayload.ExpiresAt, DateTime.UtcNow);
 
-        unitOfWork.RegisterSession(session);
+        unitOfWork.Register(session);
         await unitOfWork.CommitAsync();
 
         return new RefreshSessionResponse

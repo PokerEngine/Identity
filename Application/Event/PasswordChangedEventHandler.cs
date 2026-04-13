@@ -9,9 +9,9 @@ public class PasswordChangedEventHandler(
     IMessageSender messageSender
 ) : IEventHandler<PasswordChangedEvent>
 {
-    public async Task HandleAsync(PasswordChangedEvent @event, EventContext context)
+    public async Task HandleAsync(PasswordChangedEvent @event)
     {
-        var view = await accountStorage.GetViewAsync(context.AccountUid);
+        var view = await accountStorage.GetViewAsync(@event.AccountUid);
 
         var message = new Message
         {

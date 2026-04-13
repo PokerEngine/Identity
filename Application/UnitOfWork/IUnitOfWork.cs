@@ -4,7 +4,7 @@ namespace Application.UnitOfWork;
 
 public interface IUnitOfWork
 {
-    void RegisterIdentity(Identity identity);
-    void RegisterSession(Session session);
+    void Register(Identity identity);
+    void Register(Session session);
     Task CommitAsync();
 }

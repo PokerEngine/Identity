@@ -8,11 +8,11 @@ public class EventDispatcher(
     ILogger<EventDispatcher> logger
 ) : IEventDispatcher
 {
-    public async Task DispatchAsync(IEvent @event, EventContext context)
+    public async Task DispatchAsync(IEvent @event)
     {
         var eventType = @event.GetType();
 
-        logger.LogInformation("Dispatching {Event} in {Context}", @event, context);
+        logger.LogInformation("Dispatching {Event}", @event);
 
         var handlerType = typeof(IEventHandler<>).MakeGenericType(eventType);
         var handler = serviceProvider.GetService(handlerType);
@@ -26,9 +26,6 @@ public class EventDispatcher(
 
         var method = handlerType.GetMethod(nameof(IEventHandler<IEvent>.HandleAsync))!;
 
-        await (Task)method.Invoke(
-            handler,
-            new object[] { @event, context }
-        )!;
+        await (Task)method.Invoke(handler, new object[] { @event })!;
     }
 }

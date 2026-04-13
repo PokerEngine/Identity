@@ -41,11 +41,13 @@ public class IdentityTest
         {
             new PasswordInitializedEvent
             {
+                AccountUid = accountUid,
                 PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new PasswordChangedEvent
             {
+                AccountUid = accountUid,
                 PasswordHash = new PasswordHash("ghijkl"),
                 OccurredAt = new DateTime(2025, 1, 2)
             }
@@ -72,11 +74,13 @@ public class IdentityTest
         {
             new PasswordInitializedEvent
             {
+                AccountUid = accountUid,
                 PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },
             new PasswordInitializedEvent
             {
+                AccountUid = accountUid,
                 PasswordHash = new PasswordHash("abcdef"),
                 OccurredAt = new DateTime(2025, 1, 1)
             },

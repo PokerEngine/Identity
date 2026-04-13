@@ -9,9 +9,9 @@ public class PasswordInitializedEventHandler(
     IMessageSender messageSender
 ) : IEventHandler<PasswordInitializedEvent>
 {
-    public async Task HandleAsync(PasswordInitializedEvent @event, EventContext context)
+    public async Task HandleAsync(PasswordInitializedEvent @event)
     {
-        var view = await accountStorage.GetViewAsync(context.AccountUid);
+        var view = await accountStorage.GetViewAsync(@event.AccountUid);
 
         var message = new Message
         {

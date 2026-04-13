@@ -47,7 +47,7 @@ public class ConfirmPasswordResetHandler(
             );
         }
 
-        unitOfWork.RegisterIdentity(identity);
+        unitOfWork.Register(identity);
         await unitOfWork.CommitAsync();
 
         await passwordResetTokenStorage.DeleteTokensAsync(accountUid);

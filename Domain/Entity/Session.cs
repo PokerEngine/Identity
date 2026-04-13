@@ -4,7 +4,7 @@ using Domain.ValueObject;
 
 namespace Domain.Entity;
 
-public class Session
+public class Session : IAggregateRoot
 {
     public SessionUid Uid { get; }
     public AccountUid AccountUid { get; }
@@ -54,6 +54,7 @@ public class Session
 
         var @event = new SessionCreatedEvent
         {
+            SessionUid = uid,
             AccountUid = accountUid,
             RefreshTokenHash = refreshTokenHash,
             ExpiresAt = expiresAt,
@@ -118,6 +119,7 @@ public class Session
 
         var @event = new SessionRefreshedEvent
         {
+            SessionUid = Uid,
             RefreshTokenHash = refreshTokenHash,
             ExpiresAt = expiresAt,
             OccurredAt = now
@@ -136,6 +138,7 @@ public class Session
 
         var @event = new SessionRevokedEvent
         {
+            SessionUid = Uid,
             OccurredAt = now
         };
         AddEvent(@event);

@@ -4,7 +4,7 @@ using Domain.ValueObject;
 
 namespace Domain.Entity;
 
-public class Identity
+public class Identity : IAggregateRoot
 {
     public AccountUid AccountUid { get; }
     public PasswordHash PasswordHash { get; private set; }
@@ -38,6 +38,7 @@ public class Identity
 
         var @event = new PasswordInitializedEvent
         {
+            AccountUid = accountUid,
             PasswordHash = passwordHash,
             OccurredAt = now
         };
@@ -83,6 +84,7 @@ public class Identity
 
         var @event = new PasswordChangedEvent
         {
+            AccountUid = AccountUid,
             PasswordHash = passwordHash,
             OccurredAt = now
         };

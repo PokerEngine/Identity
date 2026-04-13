@@ -51,7 +51,7 @@ public class ConfirmPasswordResetTest
         var identity = Identity.FromEvents(accountUid, await unitOfWork.IdentityRepository.GetEventsAsync(accountUid));
         Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
-        var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
+        var events = unitOfWork.EventDispatcher.GetDispatchedEvents();
         Assert.Single(events);
         Assert.IsType<PasswordInitializedEvent>(events[0]);
     }
@@ -94,7 +94,7 @@ public class ConfirmPasswordResetTest
         var identity = Identity.FromEvents(accountUid, await unitOfWork.IdentityRepository.GetEventsAsync(accountUid));
         Assert.Equal(new PasswordHash("dr0w$$@P"), identity.PasswordHash);
 
-        var events = await unitOfWork.EventDispatcher.GetDispatchedEvents(accountUid);
+        var events = unitOfWork.EventDispatcher.GetDispatchedEvents();
         Assert.Single(events);
         Assert.IsType<PasswordChangedEvent>(events[0]);
     }
@@ -191,7 +191,7 @@ public class ConfirmPasswordResetTest
             unitOfWork: unitOfWork
         );
         await handler.HandleAsync(command);
-        await unitOfWork.EventDispatcher.ClearDispatchedEvents(accountUid);
+        unitOfWork.EventDispatcher.ClearDispatchedEvents();
     }
 
     private StubUnitOfWork CreateUnitOfWork()
