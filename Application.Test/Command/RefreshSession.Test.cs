@@ -59,8 +59,8 @@ public class RefreshSessionTest
         var refreshTokenPayload = await authTokenCodec.DecodeRefreshTokenAsync(response.RefreshToken);
         Assert.Equal(accountUid, refreshTokenPayload.AccountUid);
         Assert.Equal("Alice", refreshTokenPayload.Nickname);
-        Assert.True(DateTime.Now + new TimeSpan(0, 15, 0) >= response.AccessTokenExpiresAt);
-        Assert.True(DateTime.Now + new TimeSpan(30, 0, 0, 0) >= response.RefreshTokenExpiresAt);
+        Assert.True(DateTime.UtcNow + new TimeSpan(0, 15, 0) >= response.AccessTokenExpiresAt);
+        Assert.True(DateTime.UtcNow + new TimeSpan(30, 0, 0, 0) >= response.RefreshTokenExpiresAt);
 
         var events = unitOfWork.EventDispatcher.GetDispatchedEvents();
         Assert.Single(events);
@@ -92,7 +92,7 @@ public class RefreshSessionTest
             SessionUid = Guid.NewGuid(),
             AccountUid = accountUid,
             Nickname = "Alice",
-            ExpiresAt = DateTime.Now + new TimeSpan(30, 0, 0)
+            ExpiresAt = DateTime.UtcNow + new TimeSpan(30, 0, 0)
         };
         var refreshToken = await authTokenCodec.EncodeRefreshTokenAsync(refreshTokenPayload);
 

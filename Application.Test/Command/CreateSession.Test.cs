@@ -61,8 +61,8 @@ public class CreateSessionTest
         var refreshTokenPayload = await authTokenCodec.DecodeRefreshTokenAsync(response.RefreshToken);
         Assert.Equal(accountUid, refreshTokenPayload.AccountUid);
         Assert.Equal("Alice", refreshTokenPayload.Nickname);
-        Assert.True(DateTime.Now + new TimeSpan(0, 15, 0) >= response.AccessTokenExpiresAt);
-        Assert.True(DateTime.Now + new TimeSpan(30, 0, 0, 0) >= response.RefreshTokenExpiresAt);
+        Assert.True(DateTime.UtcNow + new TimeSpan(0, 15, 0) >= response.AccessTokenExpiresAt);
+        Assert.True(DateTime.UtcNow + new TimeSpan(30, 0, 0, 0) >= response.RefreshTokenExpiresAt);
 
         var session = Session.FromEvents(accessTokenPayload.SessionUid, await unitOfWork.SessionRepository.GetEventsAsync(accessTokenPayload.SessionUid));
         var refreshTokenHash = await refreshTokenHasher.HashAsync(response.RefreshToken);
