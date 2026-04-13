@@ -1,5 +1,29 @@
 @Api_HostAddress = http://0.0.0.0:5260
-client.global.set("accountUid", "00000000-0000-0000-0000-000000000000");
+client.global.set("accessToken", "");
+
+### Create session
+POST {{Api_HostAddress}}/api/session
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "alice.alright@test.com",
+    "password": "P@$$w0rd"
+}
+
+### Refresh session
+POST {{Api_HostAddress}}/api/session/refresh
+Accept: application/json
+Content-Type: application/json
+
+{
+    "refreshToken": "your-refresh-token-here"
+}
+
+### Revoke session
+DELETE {{Api_HostAddress}}/api/session
+Accept: application/json
+Authorization: Bearer {{accessToken}}
 
 ### Request password reset
 POST {{Api_HostAddress}}/api/identity/password-reset/request
