@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-unit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run unit tests
+        run: |
+          dotnet test --filter Category!=Integration
+
+  test-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run integration tests
+        run: |
+          dotnet test --filter Category=Integration
