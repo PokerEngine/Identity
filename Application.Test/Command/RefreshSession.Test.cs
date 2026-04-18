@@ -124,11 +124,11 @@ public class RefreshSessionTest
         string password = "P@$$w0rd"
     )
     {
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = token,
+            ResetToken = resetToken,
             Password = password
         };
         var handler = new ConfirmPasswordResetHandler(

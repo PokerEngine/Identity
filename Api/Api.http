@@ -1,5 +1,4 @@
 @Api_HostAddress = http://0.0.0.0:5260
-client.global.set("accessToken", "");
 
 ### Create session
 POST {{Api_HostAddress}}/api/session
@@ -11,14 +10,24 @@ Content-Type: application/json
     "password": "P@$$w0rd"
 }
 
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
+
 ### Refresh session
 POST {{Api_HostAddress}}/api/session/refresh
 Accept: application/json
 Content-Type: application/json
 
 {
-    "refreshToken": "your-refresh-token-here"
+    "refreshToken": "{{refreshToken}}"
 }
+
+> {%
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
 
 ### Revoke session
 DELETE {{Api_HostAddress}}/api/session
@@ -40,7 +49,7 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "token": "0123456789abcdef",
+    "resetToken": "reset-token-from-email",
     "password": "P@$$w0rd"
 }
 

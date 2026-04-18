@@ -30,11 +30,11 @@ public class ConfirmPasswordResetTest
             Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(account);
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = token,
+            ResetToken = resetToken,
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
@@ -73,11 +73,11 @@ public class ConfirmPasswordResetTest
         };
         await accountStorage.SaveViewAsync(account);
         await ConfirmPasswordResetPasswordAsync(passwordHasher, passwordResetTokenStorage, unitOfWork, accountUid, "P@$$w0rd-old");
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = token,
+            ResetToken = resetToken,
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
@@ -109,7 +109,7 @@ public class ConfirmPasswordResetTest
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = "unknown-token",
+            ResetToken = "unknown-token",
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
@@ -145,11 +145,11 @@ public class ConfirmPasswordResetTest
             Email = "alice.alright@test.com"
         };
         await accountStorage.SaveViewAsync(account);
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = token,
+            ResetToken = resetToken,
             Password = "P@$$w0rd"
         };
         var handler = new ConfirmPasswordResetHandler(
@@ -177,11 +177,11 @@ public class ConfirmPasswordResetTest
         string password = "P@$$w0rd"
     )
     {
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
 
         var command = new ConfirmPasswordResetCommand
         {
-            Token = token,
+            ResetToken = resetToken,
             Password = password
         };
         var handler = new ConfirmPasswordResetHandler(

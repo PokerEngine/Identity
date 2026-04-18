@@ -9,7 +9,7 @@ namespace Application.Command;
 
 public record ConfirmPasswordResetCommand : ICommand
 {
-    public required string Token { get; init; }
+    public required string ResetToken { get; init; }
     public required string Password { get; init; }
 }
 
@@ -24,7 +24,7 @@ public class ConfirmPasswordResetHandler(
 {
     public async Task<ConfirmPasswordResetResponse> HandleAsync(ConfirmPasswordResetCommand command)
     {
-        var accountUid = await passwordResetTokenStorage.VerifyTokenAsync(command.Token);
+        var accountUid = await passwordResetTokenStorage.VerifyTokenAsync(command.ResetToken);
         var passwordHash = await passwordHasher.HashAsync(command.Password);
         var now = DateTime.UtcNow;
 

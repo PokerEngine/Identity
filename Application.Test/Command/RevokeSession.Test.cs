@@ -165,8 +165,8 @@ public class RevokeSessionTest
         string password = "P@$$w0rd"
     )
     {
-        var token = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
-        var command = new ConfirmPasswordResetCommand { Token = token, Password = password };
+        var resetToken = await passwordResetTokenStorage.GenerateTokenAsync(accountUid);
+        var command = new ConfirmPasswordResetCommand { ResetToken = resetToken, Password = password };
         var handler = new ConfirmPasswordResetHandler(
             identityRepository: unitOfWork.IdentityRepository,
             passwordResetTokenStorage: passwordResetTokenStorage,
