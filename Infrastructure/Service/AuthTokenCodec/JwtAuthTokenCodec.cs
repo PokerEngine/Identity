@@ -16,10 +16,16 @@ public class JwtAuthTokenCodec : IAuthTokenCodec
     private readonly SymmetricSecurityKey _key;
     private readonly SigningCredentials _credentials;
 
+    private const int MinSecretLength = 16;
+
     public JwtAuthTokenCodec(IOptions<JwtAuthTokenCodecOptions> options)
     {
         _issuer = options.Value.Issuer;
         _audience = options.Value.Audience;
+
+        if (options.Value.Secret.Length < MinSecretLength)
+            throw new InternalSystemMisconfiguredException(
+                $"JwtAuthTokenCodec secret must be at least {MinSecretLength} characters");
 
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret));
         _credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
@@ -147,7 +153,10 @@ public class JwtAuthTokenCodec : IAuthTokenCodec
         var value = token.GetClaim(claim).Value
             ?? throw new WrongAuthTokenException($"Missing claim: {claim}");
 
-        return Guid.Parse(value);
+        if (!Guid.TryParse(value, out var guid))
+            throw new WrongAuthTokenException($"Invalid claim: {claim}");
+
+        return guid;
     }
 
     private static string GetString(JsonWebToken token, string claim)

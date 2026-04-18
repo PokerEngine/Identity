@@ -10,6 +10,23 @@ public class JwtAuthTokenCodecTest
     private const string Secret = "test-secret-key-that-is-long-enough-for-hs256";
 
     [Fact]
+    public void Constructor_WhenSecretTooShort_ShouldThrowException()
+    {
+        // Arrange
+        var options = Options.Create(new JwtAuthTokenCodecOptions
+        {
+            Issuer = "TestIssuer",
+            Audience = "TestAudience",
+            Secret = "tooshort"
+        });
+
+        // Act & Assert
+        Assert.Throws<InternalSystemMisconfiguredException>(
+            () => new JwtAuthTokenCodec(options)
+        );
+    }
+
+    [Fact]
     public async Task EncodeAccessTokenAsync_WhenCalled_ShouldReturnNonEmptyToken()
     {
         // Arrange
@@ -51,6 +68,18 @@ public class JwtAuthTokenCodecTest
         // Act & Assert
         await Assert.ThrowsAsync<WrongAuthTokenException>(
             async () => await codec.DecodeAccessTokenAsync(token)
+        );
+    }
+
+    [Fact]
+    public async Task DecodeAccessTokenAsync_WhenMalformedToken_ShouldThrowException()
+    {
+        // Arrange
+        var codec = CreateCodec();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<WrongAuthTokenException>(
+            async () => await codec.DecodeAccessTokenAsync("not.a.valid.jwt")
         );
     }
 
@@ -110,6 +139,18 @@ public class JwtAuthTokenCodecTest
         // Act & Assert
         await Assert.ThrowsAsync<WrongAuthTokenException>(
             async () => await codec.DecodeRefreshTokenAsync(token)
+        );
+    }
+
+    [Fact]
+    public async Task DecodeRefreshTokenAsync_WhenMalformedToken_ShouldThrowException()
+    {
+        // Arrange
+        var codec = CreateCodec();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<WrongAuthTokenException>(
+            async () => await codec.DecodeRefreshTokenAsync("not.a.valid.jwt")
         );
     }
 
