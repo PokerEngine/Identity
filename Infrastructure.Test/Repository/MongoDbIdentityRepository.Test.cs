@@ -62,9 +62,9 @@ public class MongoDbIdentityRepositoryTest(MongoDbClientFixture fixture) : IClas
         return new MongoDbIdentityRepository(client, options);
     }
 
-    private IOptions<MongoDbRepositoryOptions> CreateOptions()
+    private IOptions<MongoDbIdentityRepositoryOptions> CreateOptions()
     {
-        var options = new MongoDbRepositoryOptions
+        var options = new MongoDbIdentityRepositoryOptions
         {
             Database = $"test_repository_{Guid.NewGuid()}"
         };

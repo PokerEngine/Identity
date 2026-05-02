@@ -31,39 +31,123 @@ public static class Bootstrapper
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Configuration.AddEnvironmentVariables();
-        builder.Services.AddOpenApi();
 
-        // Register clients
-        builder.Services.Configure<MongoDbClientOptions>(
-            builder.Configuration.GetSection(MongoDbClientOptions.SectionName)
-        );
-        builder.Services.AddSingleton<MongoDbClient>();
-        builder.Services.Configure<RabbitMqClientOptions>(
-            builder.Configuration.GetSection(RabbitMqClientOptions.SectionName)
-        );
-        builder.Services.AddSingleton<RabbitMqClient>();
+        AddPersistence(builder);
+        AddDomainEvents(builder);
+        AddIntegrationEvents(builder);
+        AddCommands(builder);
+        AddApplicationServices(builder);
+        AddControllers(builder);
 
-        // Register repositories
-        builder.Services.Configure<MongoDbRepositoryOptions>(
-            builder.Configuration.GetSection(MongoDbRepositoryOptions.SectionName)
-        );
-        builder.Services.AddSingleton<IIdentityRepository, MongoDbIdentityRepository>();
-        builder.Services.AddSingleton<ISessionRepository, MongoDbSessionRepository>();
+        return builder;
+    }
 
-        // Register storages
-        builder.Services.Configure<MongoDbAccountStorageOptions>(
-            builder.Configuration.GetSection(MongoDbAccountStorageOptions.SectionName)
-        );
-        builder.Services.AddSingleton<IAccountStorage, MongoDbAccountStorage>();
-        builder.Services.Configure<MongoDbPasswordResetTokenStorageOptions>(
-            builder.Configuration.GetSection(MongoDbPasswordResetTokenStorageOptions.SectionName)
-        );
-        builder.Services.AddSingleton<IPasswordResetTokenStorage, MongoDbPasswordResetTokenStorage>();
+    private static void AddPersistence(WebApplicationBuilder builder)
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddSingleton<IIdentityRepository, InMemoryIdentityRepository>();
+            builder.Services.AddSingleton<ISessionRepository, InMemorySessionRepository>();
+            builder.Services.AddSingleton<IAccountStorage, InMemoryAccountStorage>();
+            builder.Services.AddSingleton<IPasswordResetTokenStorage, InMemoryPasswordResetTokenStorage>();
+        }
+        else
+        {
+            builder.Services.Configure<MongoDbClientOptions>(
+                builder.Configuration.GetSection(MongoDbClientOptions.SectionName)
+            );
+            builder.Services.AddSingleton<MongoDbClient>();
 
-        // Register unit of work
+            builder.Services.Configure<MongoDbIdentityRepositoryOptions>(
+                builder.Configuration.GetSection(MongoDbIdentityRepositoryOptions.SectionName)
+            );
+            builder.Services.AddSingleton<IIdentityRepository, MongoDbIdentityRepository>();
+            builder.Services.Configure<MongoDbSessionRepositoryOptions>(
+                builder.Configuration.GetSection(MongoDbSessionRepositoryOptions.SectionName)
+            );
+            builder.Services.AddSingleton<ISessionRepository, MongoDbSessionRepository>();
+
+            builder.Services.Configure<MongoDbAccountStorageOptions>(
+                builder.Configuration.GetSection(MongoDbAccountStorageOptions.SectionName)
+            );
+            builder.Services.AddSingleton<IAccountStorage, MongoDbAccountStorage>();
+            builder.Services.Configure<MongoDbPasswordResetTokenStorageOptions>(
+                builder.Configuration.GetSection(MongoDbPasswordResetTokenStorageOptions.SectionName)
+            );
+            builder.Services.AddSingleton<IPasswordResetTokenStorage, MongoDbPasswordResetTokenStorage>();
+        }
+    }
+
+    private static void AddDomainEvents(WebApplicationBuilder builder)
+    {
+        RegisterEventHandler<PasswordInitializedEvent, PasswordInitializedEventHandler>(builder.Services);
+        RegisterEventHandler<PasswordChangedEvent, PasswordChangedEventHandler>(builder.Services);
+
+        builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
+    }
+
+    private static void AddIntegrationEvents(WebApplicationBuilder builder)
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.Configure<InMemoryIntegrationEventBusOptions>(
+                builder.Configuration.GetSection(InMemoryIntegrationEventBusOptions.SectionName)
+            );
+            builder.Services.AddSingleton<InMemoryIntegrationEventBus>();
+            builder.Services.AddSingleton<IIntegrationEventPublisher, InMemoryIntegrationEventPublisher>();
+            builder.Services.AddHostedService(provider =>
+                new InMemoryIntegrationEventConsumer(
+                    bus: provider.GetRequiredService<InMemoryIntegrationEventBus>(),
+                    scopeFactory: provider.GetRequiredService<IServiceScopeFactory>(),
+                    logger: provider.GetRequiredService<ILogger<InMemoryIntegrationEventConsumer>>()
+                )
+            );
+        }
+        else
+        {
+            builder.Services.Configure<RabbitMqClientOptions>(
+                builder.Configuration.GetSection(RabbitMqClientOptions.SectionName)
+            );
+            builder.Services.AddSingleton<RabbitMqClient>();
+
+            builder.Services.Configure<RabbitMqIntegrationEventPublisherOptions>(
+                builder.Configuration.GetSection(RabbitMqIntegrationEventPublisherOptions.SectionName)
+            );
+            builder.Services.AddScoped<IIntegrationEventPublisher, RabbitMqIntegrationEventPublisher>();
+
+            builder.Services.Configure<RabbitMqIntegrationEventConsumerOptions>(
+                builder.Configuration.GetSection(RabbitMqIntegrationEventConsumerOptions.SectionName)
+            );
+            builder.Services.AddHostedService(provider =>
+                new RabbitMqIntegrationEventConsumer(
+                    scopeFactory: provider.GetRequiredService<IServiceScopeFactory>(),
+                    options: provider.GetRequiredService<IOptions<RabbitMqIntegrationEventConsumerOptions>>(),
+                    logger: provider.GetRequiredService<ILogger<RabbitMqIntegrationEventConsumer>>()
+                )
+            );
+        }
+
+        RegisterIntegrationEventHandler<AccountRegisteredIntegrationEvent, AccountRegisteredHandler>(builder.Services);
+        RegisterIntegrationEventHandler<EmailVerifiedIntegrationEvent, EmailVerifiedHandler>(builder.Services);
+
+        builder.Services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
+    }
+
+    private static void AddCommands(WebApplicationBuilder builder)
+    {
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-        // Register services
+        RegisterCommandHandler<RequestPasswordResetCommand, RequestPasswordResetHandler, RequestPasswordResetResponse>(builder.Services);
+        RegisterCommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetHandler, ConfirmPasswordResetResponse>(builder.Services);
+        RegisterCommandHandler<CreateSessionCommand, CreateSessionHandler, CreateSessionResponse>(builder.Services);
+        RegisterCommandHandler<RefreshSessionCommand, RefreshSessionHandler, RefreshSessionResponse>(builder.Services);
+        RegisterCommandHandler<RevokeSessionCommand, RevokeSessionHandler, RevokeSessionResponse>(builder.Services);
+
+        builder.Services.AddScoped<ICommandDispatcher, CommandDispatcher>();
+    }
+
+    private static void AddApplicationServices(WebApplicationBuilder builder)
+    {
         builder.Services.Configure<JwtAuthTokenCodecOptions>(
             builder.Configuration.GetSection(JwtAuthTokenCodecOptions.SectionName)
         );
@@ -71,44 +155,12 @@ public static class Bootstrapper
         builder.Services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         builder.Services.AddSingleton<IRefreshTokenHasher, Pbkdf2RefreshTokenHasher>();
         builder.Services.AddSingleton<IMessageSender, ConsoleMessageSender>();
+    }
 
-        // Register commands
-        RegisterCommandHandler<RequestPasswordResetCommand, RequestPasswordResetHandler, RequestPasswordResetResponse>(builder.Services);
-        RegisterCommandHandler<ConfirmPasswordResetCommand, ConfirmPasswordResetHandler, ConfirmPasswordResetResponse>(builder.Services);
-        RegisterCommandHandler<CreateSessionCommand, CreateSessionHandler, CreateSessionResponse>(builder.Services);
-        RegisterCommandHandler<RefreshSessionCommand, RefreshSessionHandler, RefreshSessionResponse>(builder.Services);
-        RegisterCommandHandler<RevokeSessionCommand, RevokeSessionHandler, RevokeSessionResponse>(builder.Services);
-        builder.Services.AddScoped<ICommandDispatcher, CommandDispatcher>();
-
-        // Register domain events
-        RegisterEventHandler<PasswordInitializedEvent, PasswordInitializedEventHandler>(builder.Services);
-        RegisterEventHandler<PasswordChangedEvent, PasswordChangedEventHandler>(builder.Services);
-        builder.Services.AddScoped<IEventDispatcher, EventDispatcher>();
-
-        // Register integration events
-        RegisterIntegrationEventHandler<AccountRegisteredIntegrationEvent, AccountRegisteredHandler>(builder.Services);
-        RegisterIntegrationEventHandler<EmailVerifiedIntegrationEvent, EmailVerifiedHandler>(builder.Services);
-        builder.Services.AddScoped<IIntegrationEventDispatcher, IntegrationEventDispatcher>();
-
-        builder.Services.Configure<RabbitMqIntegrationEventPublisherOptions>(
-            builder.Configuration.GetSection(RabbitMqIntegrationEventPublisherOptions.SectionName)
-        );
-        builder.Services.Configure<RabbitMqIntegrationEventConsumerOptions>(
-            builder.Configuration.GetSection(RabbitMqIntegrationEventConsumerOptions.SectionName)
-        );
-        builder.Services.AddScoped<IIntegrationEventPublisher, RabbitMqIntegrationEventPublisher>();
-        builder.Services.AddHostedService(provider =>
-            new RabbitMqIntegrationEventConsumer(
-                scopeFactory: provider.GetRequiredService<IServiceScopeFactory>(),
-                options: provider.GetRequiredService<IOptions<RabbitMqIntegrationEventConsumerOptions>>(),
-                logger: provider.GetRequiredService<ILogger<RabbitMqIntegrationEventConsumer>>()
-            )
-        );
-
+    private static void AddControllers(WebApplicationBuilder builder)
+    {
         builder.Services.AddControllers();
-        builder.Services.AddEndpointsApiExplorer();
-
-        return builder;
+        builder.Services.AddOpenApi();
     }
 
     private static void RegisterCommandHandler<TCommand, THandler, TResponse>(IServiceCollection services)

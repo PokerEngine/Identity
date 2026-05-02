@@ -4,7 +4,7 @@
     "service": "identity",
     "workspaceFolder": "/usr/local/identity",
     "postCreateCommand": "git config --global --add safe.directory /usr/local/identity",
-    "forwardPorts": [5260, 7053, 27017, 5672],
+    "forwardPorts": [5230, 7230, 27017, 5672],
     "runArgs": [
         "-v",
         "/var/run/docker.sock:/var/run/docker.sock"

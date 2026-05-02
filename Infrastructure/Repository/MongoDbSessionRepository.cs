@@ -16,7 +16,7 @@ public class MongoDbSessionRepository : ISessionRepository
     private const string CollectionName = "session_events";
     private readonly IMongoCollection<SessionEventDocument> _collection;
 
-    public MongoDbSessionRepository(MongoDbClient client, IOptions<MongoDbRepositoryOptions> options)
+    public MongoDbSessionRepository(MongoDbClient client, IOptions<MongoDbSessionRepositoryOptions> options)
     {
         var db = client.Client.GetDatabase(options.Value.Database);
         _collection = db.GetCollection<SessionEventDocument>(CollectionName);
@@ -63,6 +63,13 @@ public class MongoDbSessionRepository : ISessionRepository
 
         await _collection.InsertManyAsync(documents);
     }
+}
+
+public class MongoDbSessionRepositoryOptions
+{
+    public const string SectionName = "MongoDbSessionRepository";
+
+    public required string Database { get; init; }
 }
 
 internal sealed class SessionEventDocument

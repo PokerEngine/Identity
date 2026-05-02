@@ -47,7 +47,6 @@ public class MongoDbAccountStorage : IAccountStorage
         };
     }
 
-
     public async Task<AccountView> GetViewByEmailAsync(string email)
     {
         var document = await _accountViewCollection
@@ -95,7 +94,7 @@ public class MongoDbAccountStorageOptions
     public required string Database { get; init; }
 }
 
-public record AccountViewDocument
+internal record AccountViewDocument
 {
     [BsonId]
     public required Guid AccountUid { get; init; }
