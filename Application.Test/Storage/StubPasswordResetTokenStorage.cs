@@ -13,12 +13,14 @@ public class StubPasswordResetTokenStorage(TimeSpan ttl) : IPasswordResetTokenSt
     public Task<string> GenerateTokenAsync(Guid accountUid)
     {
         var token = GenerateRandomString();
+        var now = DateTime.UtcNow;
 
         var entry = new PasswordResetTokenEntry
         {
             AccountUid = accountUid,
             Token = token,
-            GeneratedAt = DateTime.UtcNow
+            GeneratedAt = now,
+            ExpiresAt = now + ttl
         };
 
         _mapping[token] = entry;
@@ -30,7 +32,7 @@ public class StubPasswordResetTokenStorage(TimeSpan ttl) : IPasswordResetTokenSt
     {
         if (_mapping.TryGetValue(token, out var entry))
         {
-            if (entry.GeneratedAt + ttl < DateTime.UtcNow)
+            if (entry.ExpiresAt < DateTime.UtcNow)
             {
                 throw new WrongPasswordResetTokenException("The token is expired");
             }
@@ -68,4 +70,5 @@ internal class PasswordResetTokenEntry
     public required Guid AccountUid { get; init; }
     public required string Token { get; init; }
     public required DateTime GeneratedAt { get; init; }
+    public required DateTime ExpiresAt { get; init; }
 }

@@ -9,16 +9,16 @@ namespace Infrastructure.Storage;
 public class InMemoryPasswordResetTokenStorage : IPasswordResetTokenStorage
 {
     private const int Length = 32;
-    private static TimeSpan Ttl = new TimeSpan(1, 0, 0);
+    private static TimeSpan Ttl = new(1, 0, 0);
 
-    private readonly ConcurrentDictionary<AccountUid, List<PasswordResetTokenView>> _mapping = new();
+    private readonly ConcurrentDictionary<AccountUid, List<PasswordResetTokenEntry>> _mapping = new();
 
     public Task<string> GenerateTokenAsync(Guid accountUid)
     {
         var token = GenerateRandomString();
         var now = DateTime.UtcNow;
 
-        var view = new PasswordResetTokenView
+        var view = new PasswordResetTokenEntry
         {
             AccountUid = accountUid,
             Token = token,
@@ -26,7 +26,7 @@ public class InMemoryPasswordResetTokenStorage : IPasswordResetTokenStorage
             ExpiresAt = now + Ttl
         };
 
-        var items = _mapping.GetOrAdd(accountUid, _ => new List<PasswordResetTokenView>());
+        var items = _mapping.GetOrAdd(accountUid, _ => new List<PasswordResetTokenEntry>());
         lock (items)
             items.Add(view);
 
@@ -67,7 +67,7 @@ public class InMemoryPasswordResetTokenStorage : IPasswordResetTokenStorage
     }
 }
 
-internal record PasswordResetTokenView
+internal record PasswordResetTokenEntry
 {
     public required Guid AccountUid { get; init; }
     public required string Token { get; init; }

@@ -10,6 +10,7 @@ services:
             - '7230:7230'
         environment:
             ASPNETCORE_ENVIRONMENT: Staging
+            ASPNETCORE_HTTP_PORTS: 5230
             MongoDb__Host: mongodb
             MongoDb__Port: 27017
             MongoDb__Username: ${MONGODB_USERNAME}
